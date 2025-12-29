@@ -1,0 +1,18 @@
+{
+  "name": "Orario FET Mobile Staff",
+  "short_name": "FET Staff",
+  "description": "Orario completo docenti e gestione sostituzioni",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

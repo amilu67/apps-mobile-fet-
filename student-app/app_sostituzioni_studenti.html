@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Sostituzioni</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+        .container { padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+        }
+        .header h1 { font-size: 1.3em; margin-bottom: 5px; }
+        .header p { font-size: 0.9em; opacity: 0.9; }
+        .sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+        .sync-badge.active { background: #28a745; }
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+        .filter-bar::-webkit-scrollbar {
+            display: none; /* Chrome/Safari/Opera */
+        }
+        .filter-btn {
+            padding: 8px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        .card-date {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+        .card-time {
+            background: #f8f9fa;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .card-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+        .card-icon {
+            color: #667eea;
+            width: 20px;
+            margin-top: 2px;
+        }
+        .card-label {
+            font-weight: 600;
+            color: #666;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+        .classi-assenti {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .classi-assenti h3 {
+            color: #856404;
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .classi-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .classe-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-clock"></i> Sostituzioni</h1>
+            <p id="header-subtitle">Caricamento...</p>
+            <div class="sync-badge" id="sync-badge">
+                <i class="fas fa-circle"></i>
+                <span>Connessione...</span>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterSostituzioni('oggi')">
+                <i class="fas fa-calendar-day"></i> Oggi
+            </button>
+            <button class="filter-btn" onclick="filterSostituzioni('settimana')">
+                <i class="fas fa-calendar-week"></i> Questa settimana
+            </button>
+            <button class="filter-btn" onclick="filterSostituzioni('tutte')">
+                <i class="fas fa-list"></i> Tutte
+            </button>
+        </div>
+
+        <div id="classi-assenti-section"></div>
+        <div id="sostituzioni-list"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        let sostituzioni = [];
+        let classiAssentiPerData = [];  // Array di {date, classi, timestamp}
+        let filtroAttivo = 'oggi';
+
+        // Load dynamic header from Firebase
+        function loadHeader() {
+            if (typeof firebase !== 'undefined' && firebase.database) {
+                firebase.database().ref('orario').once('value')
+                    .then(snapshot => {
+                        const data = snapshot.val();
+                        if (data) {
+                            const pageTitle = document.getElementById('page-title');
+                            const headerSubtitle = document.getElementById('header-subtitle');
+                            
+                            if (data.istituto && pageTitle) {
+                                pageTitle.textContent = `Sostituzioni - ${data.istituto}`;
+                            }
+                            if (data.istituto && data.anno_scolastico && headerSubtitle) {
+                                headerSubtitle.textContent = `${data.istituto} - ${data.anno_scolastico}`;
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore caricamento header:', error);
+                    });
+            }
+        }
+
+        function init() {
+            console.log('App sostituzioni studenti - inizializzazione...');
+            console.log('FirebaseManager disponibile?', typeof FirebaseManager !== 'undefined');
+            console.log('firebase disponibile?', typeof firebase !== 'undefined');
+            
+            // Load dynamic header
+            loadHeader();
+            
+            // Attiva listener Firebase per sostituzioni
+            if (typeof FirebaseManager !== 'undefined') {
+                console.log('✅ FirebaseManager trovato, attivo listener...');
+                try {
+                    FirebaseManager.onSostituzioniChange((data) => {
+                        console.log('🔄 Sostituzioni ricevute:', data.length);
+                        console.log('Esempio prima sostituzione:', data[0]);
+                        sostituzioni = data;
+                        renderView();
+                        updateSyncBadge(true);
+                    });
+
+                    // Listener in tempo reale per TUTTE le classi assenti
+                    FirebaseManager.onAllClassiAssentiChange((data) => {
+                        console.log('🔄 Classi assenti caricate:', data.length);
+                        classiAssentiPerData = data;
+                        renderView();
+                    });
+                } catch (error) {
+                    console.error('❌ Errore attivazione listener:', error);
+                    updateSyncBadge(false);
+                    document.getElementById('sostituzioni-list').innerHTML = 
+                        '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Errore: ' + error.message + '</p></div>';
+                }
+            } else {
+                console.error('❌ FirebaseManager non trovato!');
+                updateSyncBadge(false);
+                document.getElementById('sostituzioni-list').innerHTML = 
+                    '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>Impossibile connettersi al server. Verifica la connessione.</p></div>';
+            }
+        }
+
+        function renderView() {
+            renderSostituzioni();
+            renderClassiAssenti();
+        }
+
+        function renderClassiAssenti() {
+            const section = document.getElementById('classi-assenti-section');
+            
+            // Filtra classi assenti in base al filtro attivo
+            const oggi = new Date();
+            oggi.setHours(0, 0, 0, 0);
+            const yyyy = oggi.getFullYear();
+            const mm = String(oggi.getMonth() + 1).padStart(2, '0');
+            const dd = String(oggi.getDate()).padStart(2, '0');
+            const oggiStr = `${yyyy}-${mm}-${dd}`;
+            
+            let classiFiltrate = [];
+            
+            if (filtroAttivo === 'oggi') {
+                // Solo oggi
+                const oggiData = classiAssentiPerData.find(item => item.date === oggiStr);
+                if (oggiData) {
+                    classiFiltrate = [{
+                        date: oggiData.date,
+                        classi: oggiData.classi
+                    }];
+                }
+            } else if (filtroAttivo === 'settimana') {
+                // Questa settimana (lunedì-venerdì)
+                const inizioSettimana = new Date(oggi);
+                inizioSettimana.setDate(oggi.getDate() - oggi.getDay() + 1);
+                const fineSettimana = new Date(inizioSettimana);
+                fineSettimana.setDate(inizioSettimana.getDate() + 4);
+                
+                classiFiltrate = classiAssentiPerData.filter(item => {
+                    const d = new Date(item.date + 'T12:00:00');
+                    return d >= inizioSettimana && d <= fineSettimana;
+                });
+            } else {
+                // Tutte
+                classiFiltrate = classiAssentiPerData;
+            }
+            
+            // Ordina per data (più recenti prima)
+            classiFiltrate.sort((a, b) => b.date.localeCompare(a.date));
+            
+            // Renderizza
+            if (classiFiltrate.length === 0) {
+                section.innerHTML = '';
+                return;
+            }
+            
+            let html = '';
+            classiFiltrate.forEach(item => {
+                const dataObj = new Date(item.date + 'T12:00:00');
+                const dataStr = dataObj.toLocaleDateString('it-IT', { 
+                    weekday: 'short', 
+                    day: 'numeric', 
+                    month: 'short' 
+                });
+                
+                html += `
+                    <div class="classi-assenti">
+                        <h3><i class="fas fa-bus"></i> Classi Assenti - ${dataStr}</h3>
+                        <div class="classi-list">
+                            ${item.classi.map(c => `<span class="classe-badge">${c}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            section.innerHTML = html;
+        }
+
+        function updateSyncBadge(connected) {
+            const badge = document.getElementById('sync-badge');
+            if (connected) {
+                badge.className = 'sync-badge active';
+                badge.innerHTML = '<i class="fas fa-circle"></i><span>Sincronizzato</span>';
+            } else {
+                badge.className = 'sync-badge';
+                badge.innerHTML = '<i class="fas fa-circle"></i><span>Offline</span>';
+            }
+        }
+
+        function filterSostituzioni(tipo) {
+            filtroAttivo = tipo;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.filter-btn').classList.add('active');
+            renderView();
+        }
+
+        function renderSostituzioni() {
+            let filtrate = sostituzioni;
+            const oggi = new Date();
+            oggi.setHours(0, 0, 0, 0);
+
+            if (filtroAttivo === 'oggi') {
+                // Usa timezone locale invece di UTC
+                const yyyy = oggi.getFullYear();
+                const mm = String(oggi.getMonth() + 1).padStart(2, '0');
+                const dd = String(oggi.getDate()).padStart(2, '0');
+                const oggiStr = `${yyyy}-${mm}-${dd}`;
+                
+                console.log('Filtro oggi:', oggiStr);
+                console.log('Sostituzioni disponibili:', sostituzioni.map(s => s.data));
+                filtrate = sostituzioni.filter(s => {
+                    // Normalizza le date per confronto
+                    const sostData = s.data ? s.data.split('T')[0] : '';
+                    const match = sostData === oggiStr;
+                    if (match) console.log('Match trovato:', s.classe, s.data);
+                    return match;
+                });
+                console.log('Sostituzioni filtrate per oggi:', filtrate.length);
+            } else if (filtroAttivo === 'settimana') {
+                const inizioSettimana = new Date(oggi);
+                inizioSettimana.setDate(oggi.getDate() - oggi.getDay() + 1);
+                const fineSettimana = new Date(inizioSettimana);
+                fineSettimana.setDate(inizioSettimana.getDate() + 4);
+                filtrate = sostituzioni.filter(s => {
+                    const d = new Date(s.data + 'T12:00:00');
+                    return d >= inizioSettimana && d <= fineSettimana;
+                });
+            }
+
+            const container = document.getElementById('sostituzioni-list');
+            if (filtrate.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p style="font-weight: 600; margin-top: 15px;">Nessuna sostituzione</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Non ci sono sostituzioni per questo periodo</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtrate.map(s => {
+                const data = new Date(s.data + 'T12:00:00');
+                const dataStr = data.toLocaleDateString('it-IT', { 
+                    weekday: 'long', 
+                    day: 'numeric', 
+                    month: 'long' 
+                });
+
+                const docentiSostituti = Array.isArray(s.docenti_sostituti) 
+                    ? s.docenti_sostituti.map(d => {
+                        if (typeof d === 'object' && d.nome) {
+                            return d.ora_inizio 
+                                ? `${d.nome} (${d.ora_inizio}-${d.ora_fine})`
+                                : d.nome;
+                        }
+                        return d;
+                    }).join(', ')
+                    : s.docenti_sostituti || '-';
+
+                return `
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-date">${dataStr}</div>
+                            <div class="card-time">${s.ora_inizio} - ${s.ora_fine}</div>
+                        </div>
+                        <div class="card-row">
+                            <i class="fas fa-graduation-cap card-icon"></i>
+                            <div><span class="card-label">Classe:</span> ${s.classe} (Aula ${s.aula})</div>
+                        </div>
+                        <div class="card-row">
+                            <i class="fas fa-book card-icon"></i>
+                            <div><span class="card-label">Materia:</span> ${s.materia}</div>
+                        </div>
+                        ${s.laboratorio ? `
+                        <div class="card-row">
+                            <i class="fas fa-flask card-icon"></i>
+                            <div><span class="card-label">Laboratorio:</span> ${s.laboratorio}</div>
+                        </div>
+                        ` : ''}
+                        <div class="card-row">
+                            <i class="fas fa-user-times card-icon"></i>
+                            <div><span class="card-label">Assente:</span> ${s.docenti_assenti.join(', ')}</div>
+                        </div>
+                        <div class="card-row">
+                            <i class="fas fa-user-check card-icon"></i>
+                            <div><span class="card-label">Sostituto:</span> ${docentiSostituti}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Prova immediatamente
+            init();
+            
+            // Se dopo 2 secondi FirebaseManager non è ancora caricato, riprova
+            setTimeout(() => {
+                if (typeof FirebaseManager === 'undefined') {
+                    console.warn('⚠️ FirebaseManager non ancora caricato, riprovo...');
+                    init();
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

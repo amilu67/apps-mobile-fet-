@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Classi Assenti - ITI Righi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .header h1 { font-size: 1.5em; margin-bottom: 5px; }
+        .header p { font-size: 0.9em; opacity: 0.9; }
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .date-selector {
+            padding: 20px;
+            background: #fff3cd;
+            border-bottom: 2px solid #ffc107;
+        }
+        .date-selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #856404;
+        }
+        .date-selector input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #ff9800;
+        }
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        .add-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .add-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        .add-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .add-row select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .add-btn {
+            padding: 12px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .group-btns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .group-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+        }
+        .classi-list-section {
+            padding: 20px;
+        }
+        .classi-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .classi-list-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .clear-btn {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85em;
+        }
+        .classi-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .classe-badge {
+            background: #ffc107;
+            color: #000;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .classe-badge button {
+            background: none;
+            border: none;
+            color: #000;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .publish-section {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+        }
+        .publish-btn {
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #adb5bd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-bus"></i> Gestione Classi Assenti</h1>
+            <p>Gite, eventi, assemblee</p>
+            <button class="back-btn" onclick="window.location.href='index.html'">
+                <i class="fas fa-arrow-left"></i> Menu principale
+            </button>
+        </div>
+
+        <div class="date-selector">
+            <label><i class="fas fa-calendar"></i> Seleziona data</label>
+            <input type="date" id="data-select" onchange="loadClassiAssentiForDate()">
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="count-classi">0</div>
+                <div class="stat-label">Classi assenti</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="count-docenti">0</div>
+                <div class="stat-label">Docenti liberati</div>
+            </div>
+        </div>
+
+        <div class="add-section">
+            <div class="add-title">Aggiungi classi</div>
+            <div class="add-row">
+                <select id="classe-select">
+                    <option value="">Seleziona classe...</option>
+                </select>
+                <button class="add-btn" onclick="addClasse()">
+                    <i class="fas fa-plus"></i>
+                </button>
+            </div>
+            <div class="group-btns">
+                <button class="group-btn" onclick="addGruppo('biennio')">
+                    <i class="fas fa-users"></i> Biennio (1-2)
+                </button>
+                <button class="group-btn" onclick="addGruppo('triennio')">
+                    <i class="fas fa-users"></i> Triennio (3-4-5)
+                </button>
+            </div>
+        </div>
+
+        <div class="classi-list-section">
+            <div class="classi-list-header">
+                <div class="classi-list-title">Classi selezionate</div>
+                <button class="clear-btn" onclick="clearAll()">
+                    <i class="fas fa-trash"></i> Rimuovi tutte
+                </button>
+            </div>
+            <div class="classi-grid" id="classi-list"></div>
+            <div class="empty-state" id="empty-state">
+                <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 10px;"></i>
+                <p>Nessuna classe selezionata</p>
+            </div>
+        </div>
+
+        <div class="publish-section">
+            <button class="publish-btn" onclick="pubblicaClassi()" style="margin-bottom: 10px;">
+                <i class="fas fa-save"></i> Salva e pubblica
+            </button>
+            <button class="publish-btn" onclick="eliminaTutteClassi()" style="background: #dc3545;">
+                <i class="fas fa-trash"></i> Elimina
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        let orario = null;
+        let classiAssenti = [];
+        let currentDate = null;
+
+        async function init() {
+            // Carica orario
+            try {
+                orario = await FirebaseManager.loadOrario();
+                populateClassiSelect();
+            } catch (error) {
+                console.error('Errore caricamento orario:', error);
+            }
+
+            // Imposta data di oggi
+            const oggi = new Date();
+            const yyyy = oggi.getFullYear();
+            const mm = String(oggi.getMonth() + 1).padStart(2, '0');
+            const dd = String(oggi.getDate()).padStart(2, '0');
+            currentDate = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('data-select').value = currentDate;
+            
+            loadClassiAssentiForDate();
+        }
+
+        function populateClassiSelect() {
+            const select = document.getElementById('classe-select');
+            orario.classi
+                .sort((a, b) => a.nome.localeCompare(b.nome))
+                .forEach(classe => {
+                    const option = document.createElement('option');
+                    option.value = classe.nome;
+                    option.textContent = classe.nome;
+                    select.appendChild(option);
+                });
+        }
+
+        async function loadClassiAssentiForDate() {
+            currentDate = document.getElementById('data-select').value;
+            if (!currentDate) return;
+
+            if (typeof FirebaseManager !== 'undefined') {
+                const classi = await FirebaseManager.loadClassiAssenti(currentDate);
+                classiAssenti = classi || [];
+                renderClassi();
+                updateStats();
+            }
+        }
+
+        function addClasse() {
+            const select = document.getElementById('classe-select');
+            const classe = select.value;
+            
+            if (!classe) {
+                alert('Seleziona una classe');
+                return;
+            }
+            
+            if (classiAssenti.includes(classe)) {
+                alert('Classe già aggiunta');
+                return;
+            }
+            
+            classiAssenti.push(classe);
+            select.value = '';
+            renderClassi();
+            updateStats();
+        }
+
+        function removeClasse(classe) {
+            classiAssenti = classiAssenti.filter(c => c !== classe);
+            renderClassi();
+            updateStats();
+        }
+
+        function addGruppo(tipo) {
+            let classiDaAggiungere = [];
+            
+            if (tipo === 'biennio') {
+                classiDaAggiungere = orario.classi
+                    .filter(c => c.nome.startsWith('1') || c.nome.startsWith('2'))
+                    .map(c => c.nome);
+            } else if (tipo === 'triennio') {
+                classiDaAggiungere = orario.classi
+                    .filter(c => c.nome.startsWith('3') || c.nome.startsWith('4') || c.nome.startsWith('5'))
+                    .map(c => c.nome);
+            }
+            
+            let aggiunte = 0;
+            classiDaAggiungere.forEach(classe => {
+                if (!classiAssenti.includes(classe)) {
+                    classiAssenti.push(classe);
+                    aggiunte++;
+                }
+            });
+            
+            renderClassi();
+            updateStats();
+            
+            if (aggiunte > 0) {
+                alert(`${aggiunte} classi aggiunte`);
+            } else {
+                alert('Tutte le classi sono già state aggiunte');
+            }
+        }
+
+        function clearAll() {
+            if (classiAssenti.length === 0) {
+                alert('Nessuna classe da rimuovere');
+                return;
+            }
+            
+            if (confirm(`Rimuovere tutte le ${classiAssenti.length} classi dalla lista locale?\n\nQuesto NON eliminerà i dati da Firebase.`)) {
+                classiAssenti = [];
+                renderClassi();
+                updateStats();
+            }
+        }
+
+        function renderClassi() {
+            const container = document.getElementById('classi-list');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (classiAssenti.length === 0) {
+                container.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            container.style.display = 'flex';
+            emptyState.style.display = 'none';
+            
+            classiAssenti.sort();
+            container.innerHTML = classiAssenti.map(classe => `
+                <div class="classe-badge">
+                    <span>${classe}</span>
+                    <button onclick="removeClasse('${classe}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('count-classi').textContent = classiAssenti.length;
+            
+            // Conta docenti liberati SOLO per il giorno della data selezionata
+            if (orario && classiAssenti.length > 0 && currentDate) {
+                // Determina il giorno della settimana dalla data
+                const data = new Date(currentDate + 'T12:00:00');
+                const giorni = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+                const giornoSettimana = giorni[data.getDay()];
+                
+                const docentiLiberati = new Set();
+                classiAssenti.forEach(classe => {
+                    const c = orario.classi.find(cl => cl.nome === classe);
+                    if (c) {
+                        // Filtra solo le lezioni del giorno specifico
+                        c.lezioni
+                            .filter(lez => lez.giorno === giornoSettimana)
+                            .forEach(lez => {
+                                lez.docenti.forEach(doc => {
+                                    if (doc !== 'N/D') docentiLiberati.add(doc);
+                                });
+                            });
+                    }
+                });
+                document.getElementById('count-docenti').textContent = docentiLiberati.size;
+            } else {
+                document.getElementById('count-docenti').textContent = '0';
+            }
+        }
+
+        async function pubblicaClassi() {
+            if (!currentDate) {
+                alert('Seleziona una data');
+                return;
+            }
+
+            if (typeof FirebaseManager === 'undefined') {
+                alert('Firebase non disponibile');
+                return;
+            }
+
+            try {
+                console.log(`💾 Salvataggio classi assenti per ${currentDate}:`, classiAssenti);
+                await FirebaseManager.saveClassiAssenti(currentDate, classiAssenti);
+                alert(`✅ ${classiAssenti.length} classi assenti salvate e pubblicate per ${currentDate}!`);
+            } catch (error) {
+                console.error('❌ Errore salvataggio:', error);
+                alert('Errore durante il salvataggio: ' + error.message);
+            }
+        }
+
+        async function eliminaTutteClassi() {
+            if (!currentDate) {
+                alert('Seleziona una data');
+                return;
+            }
+
+            if (typeof FirebaseManager === 'undefined') {
+                alert('Firebase non disponibile');
+                return;
+            }
+
+            if (!confirm(`Eliminare TUTTE le classi assenti dal database Firebase per la data ${currentDate}?\n\nQuesta azione è irreversibile!`)) {
+                return;
+            }
+
+            try {
+                console.log(`🗑️ Eliminazione classi assenti per ${currentDate}`);
+                await FirebaseManager.deleteClassiAssenti(currentDate);
+                classiAssenti = [];
+                renderClassi();
+                updateStats();
+                alert(`✅ Classi assenti eliminate dal database per ${currentDate}`);
+            } catch (error) {
+                console.error('❌ Errore eliminazione:', error);
+                alert('Errore durante l\'eliminazione: ' + error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

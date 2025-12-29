@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Orario Classi - ITI Righi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .app-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        header .subtitle {
+            font-size: 0.75em;
+            opacity: 0.8;
+            margin-top: 3px;
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: white;
+            color: #666;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Search Section */
+        .search-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .search-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .search-group {
+            margin-bottom: 15px;
+        }
+
+        .search-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .search-group input,
+        .search-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            color: #333;
+        }
+
+        .search-group input:focus,
+        .search-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .time-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .time-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .time-group label {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .time-group select {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            color: #333;
+        }
+
+        .search-btn {
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .search-btn:active {
+            transform: scale(0.98);
+            background: #218838;
+        }
+
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Results Section */
+        .results-section {
+            padding: 20px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .results-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .results-count {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .results-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lesson-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+        .lesson-card:active {
+            transform: scale(0.98);
+            border-color: #667eea;
+        }
+
+        .lesson-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .lesson-day {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #667eea;
+        }
+
+        .lesson-time {
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .lesson-info {
+            margin-top: 10px;
+        }
+
+        .lesson-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .lesson-info-icon {
+            color: #667eea;
+            width: 20px;
+            margin-top: 2px;
+        }
+
+        .lesson-info-content {
+            flex: 1;
+            color: #333;
+        }
+
+        .lesson-info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .lesson-aula {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .classe-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .classe-badge.bio {
+            background: #28a745;
+            color: white;
+        }
+
+        .classe-badge.ele {
+            background: #007bff;
+            color: white;
+        }
+
+        .classe-badge.inf {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .classe-badge.mec {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .classe-badge.gr {
+            background: #e83e8c;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state-text {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-subtext {
+            font-size: 0.9em;
+        }
+
+        /* Schedule View */
+        .schedule-view {
+            padding: 20px;
+        }
+
+        .schedule-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-class-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .schedule-class-aula {
+            font-size: 1em;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .schedule-table-container {
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .schedule-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .schedule-table td {
+            border: 1px solid #e9ecef;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            min-height: 60px;
+            font-size: 0.85em;
+        }
+
+        .schedule-table td.time-col {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .schedule-table td.empty {
+            background: #fafafa;
+            color: #ccc;
+        }
+
+        .schedule-lesson {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+        }
+
+        .schedule-lesson.duration-2h {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+        }
+
+        .schedule-lesson.duration-3h {
+            background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+        }
+
+        .schedule-subject {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .schedule-teachers {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .file-status {
+            padding: 12px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .file-status.active {
+            display: block;
+        }
+
+        .file-status.error {
+            background: #fff5f5;
+            color: #dc3545;
+        }
+
+        /* Autocomplete suggestions */
+        .autocomplete-container {
+            position: relative;
+        }
+
+        .autocomplete-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .autocomplete-suggestions.active {
+            display: block;
+        }
+
+        .autocomplete-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.2s;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover,
+        .autocomplete-item.active {
+            background: #f8f9fa;
+        }
+
+        .autocomplete-item strong {
+            color: #667eea;
+        }
+
+        /* Docenti Disponibili */
+        .docente-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .docente-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+        .badge-disposizione {
+            background: #007bff;
+            color: white;
+        }
+
+        .badge-liberato {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge-occupato {
+            background: #dc3545;
+            color: white;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .filter-box {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .filter-box-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .filter-checkbox input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1><i class="fas fa-search"></i> Ricerca Orario</h1>
+            <p id="app-subtitle">Caricamento...</p>
+            <div class="subtitle" id="app-year" style="display: none;"></div>
+        </header>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="search-docente" onclick="app.switchTab('search-docente')">
+                <i class="fas fa-chalkboard-teacher"></i> Docente
+            </button>
+            <button class="tab-btn" data-tab="disponibili" onclick="app.switchTab('disponibili')">
+                <i class="fas fa-user-check"></i> Disponibili
+            </button>
+            <button class="tab-btn" data-tab="schedule" onclick="app.switchTab('schedule')">
+                <i class="fas fa-calendar-alt"></i> Orario Classe
+            </button>
+        </div>
+
+
+        <!-- TAB: Search by Teacher -->
+        <div class="tab-content active" id="tab-search-docente">
+            <div class="search-section">
+                <div class="search-title"><i class="fas fa-search"></i> Cerca per Docente</div>
+                
+                <div class="search-group autocomplete-container">
+                    <label for="docente-input">Nome Docente (Cognome, Nome)</label>
+                    <input type="text" id="docente-input" placeholder="Es: Rossi, Mario">
+                    <div class="autocomplete-suggestions" id="autocomplete-suggestions"></div>
+                </div>
+
+                <div class="search-group">
+                    <label for="day-select-docente">Giorno (opzionale)</label>
+                    <select id="day-select-docente">
+                        <option value="">Tutti i giorni</option>
+                        <option value="Lunedì">Lunedì</option>
+                        <option value="Martedì">Martedì</option>
+                        <option value="Mercoledì">Mercoledì</option>
+                        <option value="Giovedì">Giovedì</option>
+                        <option value="Venerdì">Venerdì</option>
+                    </select>
+                </div>
+
+                <div class="time-selector">
+                    <div class="time-group">
+                        <label for="time-start-docente">Da Ora (opzionale)</label>
+                        <select id="time-start-docente">
+                            <option value="">Tutte</option>
+                            <option value="08:00">08:00</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                        </select>
+                    </div>
+                    <div class="time-group">
+                        <label for="time-end-docente">A Ora (opzionale)</label>
+                        <select id="time-end-docente">
+                            <option value="">Tutte</option>
+                            <option value="09:00">09:00</option>
+                            <option value="10:00">10:00</option>
+                            <option value="11:00">11:00</option>
+                            <option value="12:00">12:00</option>
+                            <option value="13:00">13:00</option>
+                            <option value="14:00">14:00</option>
+                            <option value="15:00">15:00</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="search-btn" id="search-btn-docente" onclick="app.searchByDocente()">
+                    <i class="fas fa-search"></i> Cerca Lezioni
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header" id="results-header-docente" style="display: none;">
+                    <div class="results-title">Risultati</div>
+                    <div class="results-count" id="results-count-docente">0</div>
+                </div>
+
+                <div class="results-list" id="results-list-docente">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div class="empty-state-text">Cerca un docente</div>
+                        <div class="empty-state-subtext">Visualizza le lezioni del docente</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Docenti Disponibili -->
+        <div class="tab-content" id="tab-disponibili">
+            <div class="search-section">
+                <div class="search-title"><i class="fas fa-user-check"></i> Cerca Docenti Disponibili</div>
+                
+                <div class="search-group">
+                    <label for="data-disp">Seleziona data</label>
+                    <input type="date" id="data-disp" onchange="app.updateGiornoFromData()">
+                </div>
+
+                <div class="search-group">
+                    <label for="giorno-disp-readonly">Giorno della settimana</label>
+                    <input type="text" id="giorno-disp-readonly" readonly style="background: #f8f9fa; cursor: not-allowed;" placeholder="Seleziona una data">
+                </div>
+
+                <div class="search-group">
+                    <label for="ora-disp">Fascia oraria</label>
+                    <select id="ora-disp">
+                        <option value="">Seleziona...</option>
+                        <option value="08:00">08:00 - 09:00</option>
+                        <option value="09:00">09:00 - 10:00</option>
+                        <option value="10:00">10:00 - 11:00</option>
+                        <option value="11:00">11:00 - 12:00</option>
+                        <option value="12:00">12:00 - 13:00</option>
+                        <option value="13:00">13:00 - 14:00</option>
+                        <option value="14:00">14:00 - 15:00</option>
+                    </select>
+                </div>
+
+                <div class="search-group">
+                    <label for="nome-disp">Cerca per nome (opzionale)</label>
+                    <input type="text" id="nome-disp" placeholder="Es: Rossi, Bianchi...">
+                </div>
+
+                <div class="filter-box">
+                    <div class="filter-box-title">Filtra per disponibilità:</div>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="filter-disp" checked>
+                        <span><i class="fas fa-check" style="color: #007bff;"></i> A disposizione (D)</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="filter-lib" checked>
+                        <span><i class="fas fa-bus" style="color: #ff9800;"></i> Liberato da classe assente</span>
+                    </label>
+                    <label class="filter-checkbox">
+                        <input type="checkbox" id="filter-occ">
+                        <span><i class="fas fa-book" style="color: #dc3545;"></i> Occupato con lezione</span>
+                    </label>
+                </div>
+
+                <button class="search-btn" onclick="app.cercaDisponibili()">
+                    <i class="fas fa-search"></i> Cerca Docenti
+                </button>
+            </div>
+
+            <div class="results-section">
+                <div class="results-header" id="results-header-disp" style="display: none;">
+                    <div class="results-title">Risultati</div>
+                    <div class="results-count" id="results-count-disp">0</div>
+                </div>
+
+                <div class="results-list" id="results-list-disp">
+                    <div class="empty-state">
+                        <div class="empty-state-icon"><i class="fas fa-user-check"></i></div>
+                        <div class="empty-state-text">Cerca docenti disponibili</div>
+                        <div class="empty-state-subtext">Seleziona giorno e fascia oraria</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: Full Schedule -->
+        <div class="tab-content" id="tab-schedule">
+            <div class="search-section">
+                <div class="search-title"><i class="fas fa-calendar-alt"></i> Orario Completo Classe</div>
+                
+                <div class="search-group">
+                    <label for="schedule-classe-select">Seleziona Classe</label>
+                    <select id="schedule-classe-select" onchange="app.showClassSchedule()">
+                        <option value="">-- Seleziona una classe --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="schedule-view" id="schedule-view" style="display: none;">
+                <div class="schedule-header">
+                    <div class="schedule-class-name" id="schedule-class-name"></div>
+                    <div class="schedule-class-aula">
+                        <i class="fas fa-door-open"></i>
+                        <span>Aula: <strong id="schedule-class-aula"></strong></span>
+                    </div>
+                    <div class="schedule-stats">
+                        <span><i class="fas fa-book"></i> <span id="schedule-total-lessons">0</span> lezioni</span>
+                    </div>
+                </div>
+
+                <div class="schedule-table-container">
+                    <table class="schedule-table" id="schedule-table">
+                        <thead id="schedule-thead">
+                            <tr>
+                                <th>Ora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const app = {
+            data: null,
+            currentTab: 'search-docente',
+            allTeachers: new Set(),
+            classiAssentiPerData: [],
+
+            init() {
+                this.loadJSON();
+                this.setupAutocomplete();
+                this.setupFirebase();
+                this.setupDataPicker();
+            },
+
+            setupFirebase() {
+                if (typeof FirebaseManager !== 'undefined') {
+                    FirebaseManager.onAllClassiAssentiChange((data) => {
+                        this.classiAssentiPerData = data;
+                        console.log('✅ Classi assenti caricate:', data.length);
+                    });
+                }
+            },
+
+            setupDataPicker() {
+                const oggi = new Date();
+                const yyyy = oggi.getFullYear();
+                const mm = String(oggi.getMonth() + 1).padStart(2, '0');
+                const dd = String(oggi.getDate()).padStart(2, '0');
+                const dataOggi = `${yyyy}-${mm}-${dd}`;
+                document.getElementById('data-disp').value = dataOggi;
+                console.log('✅ Data impostata:', dataOggi);
+                // Aggiorna anche il giorno della settimana
+                this.updateGiornoFromData();
+            },
+
+            updateGiornoFromData() {
+                const dataInput = document.getElementById('data-disp');
+                const giornoInput = document.getElementById('giorno-disp-readonly');
+                
+                if (!dataInput.value) {
+                    giornoInput.value = '';
+                    return;
+                }
+                
+                const data = new Date(dataInput.value + 'T12:00:00');
+                const giorni = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+                const giorno = giorni[data.getDay()];
+                
+                giornoInput.value = giorno;
+                console.log('📅 Giorno aggiornato:', giorno);
+            },
+
+            async loadJSON() {
+                const status = document.getElementById('file-status');
+                try {
+                    this.data = await FirebaseManager.loadOrario();
+                    this.onFileLoaded();
+                    this.updateHeader();
+                    this.populateTimeRanges();
+                    this.updateScheduleTableHeaders();
+                } catch (error) {
+                    status.className = 'file-status active error';
+                    status.innerHTML = `<i class="fas fa-exclamation-circle"></i> Errore: ${error.message}. Assicurati che orario.json sia nella stessa cartella dell'app.`;
+                    console.error('Errore caricamento JSON:', error);
+                }
+            },
+
+            updateScheduleTableHeaders() {
+                if (!this.data || !this.data.orario || !this.data.orario.giorni) return;
+                
+                const thead = document.getElementById('schedule-thead');
+                if (!thead) return;
+                
+                const giorni = this.data.orario.giorni;
+                const dayAbbr = {
+                    'Lunedì': 'Lun',
+                    'Martedì': 'Mar',
+                    'Mercoledì': 'Mer',
+                    'Giovedì': 'Gio',
+                    'Venerdì': 'Ven',
+                    'Sabato': 'Sab',
+                    'Domenica': 'Dom'
+                };
+                
+                const tr = thead.querySelector('tr');
+                // Mantieni solo la colonna Ora
+                tr.innerHTML = '<th>Ora</th>';
+                
+                // Aggiungi colonne per ogni giorno
+                giorni.forEach(giorno => {
+                    const th = document.createElement('th');
+                    th.textContent = dayAbbr[giorno] || giorno.substring(0, 3);
+                    tr.appendChild(th);
+                });
+            },
+
+            updateHeader() {
+                if (this.data) {
+                    const subtitle = document.getElementById('app-subtitle');
+                    const year = document.getElementById('app-year');
+                    subtitle.textContent = this.data.istituto || 'Orario Scolastico';
+                    if (this.data.anno_scolastico) {
+                        year.textContent = `A.S. ${this.data.anno_scolastico}`;
+                        year.style.display = 'block';
+                    }
+                }
+            },
+
+            populateTimeRanges() {
+                if (!this.data || !this.data.orario || !this.data.orario.fasce_orarie) return;
+                
+                const fasce = this.data.orario.fasce_orarie;
+                const selects = ['time-start-docente', 'time-end-docente', 'ora-disp'];
+                
+                selects.forEach(selectId => {
+                    const select = document.getElementById(selectId);
+                    if (!select) return;
+                    
+                    // Salva opzione di default
+                    const hasEmpty = select.querySelector('option[value=""]');
+                    const emptyText = hasEmpty ? hasEmpty.textContent : '';
+                    
+                    // Pulisci e ripopola
+                    select.innerHTML = '';
+                    if (hasEmpty) {
+                        const opt = document.createElement('option');
+                        opt.value = '';
+                        opt.textContent = emptyText;
+                        select.appendChild(opt);
+                    }
+                    
+                    // Aggiungi fasce orarie
+                    fasce.forEach(fascia => {
+                        const [inizio, fine] = fascia.split('-');
+                        const opt = document.createElement('option');
+                        opt.value = inizio;
+                        opt.textContent = selectId === 'ora-disp' ? `${inizio} - ${fine}` : inizio;
+                        select.appendChild(opt);
+                    });
+                });
+            },
+
+            onFileLoaded() {
+                // Popola dropdown classi
+                this.populateClasseSelects();
+                
+                // Estrai tutti i docenti
+                this.extractAllTeachers();
+            },
+
+            populateClasseSelects() {
+                const select = document.getElementById('schedule-classe-select');
+                
+                // Ordina le classi: prima per numero, poi per lettera, poi per indirizzo
+                const classi = [...this.data.classi].sort((a, b) => {
+                    // Estrai anno, sezione e indirizzo
+                    const parseClasse = (nome) => {
+                        const match = nome.match(/^(\d)([A-Z])(.*)$/);
+                        if (match) {
+                            return {
+                                anno: parseInt(match[1]),
+                                sezione: match[2],
+                                indirizzo: match[3] || ''
+                            };
+                        }
+                        return { anno: 0, sezione: '', indirizzo: '' };
+                    };
+                    
+                    const aInfo = parseClasse(a.nome);
+                    const bInfo = parseClasse(b.nome);
+                    
+                    // Ordina per anno
+                    if (aInfo.anno !== bInfo.anno) return aInfo.anno - bInfo.anno;
+                    // Poi per sezione
+                    if (aInfo.sezione !== bInfo.sezione) return aInfo.sezione.localeCompare(bInfo.sezione);
+                    // Infine per indirizzo
+                    return aInfo.indirizzo.localeCompare(bInfo.indirizzo);
+                });
+                
+                classi.forEach(classe => {
+                    const aulaDisplay = classe.aula !== 'N/D' ? classe.aula : 'Aula non assegnata';
+                    
+                    const option = document.createElement('option');
+                    option.value = classe.nome;
+                    option.textContent = `${classe.nome} - ${aulaDisplay}`;
+                    select.appendChild(option);
+                });
+            },
+
+            extractAllTeachers() {
+                // Usa tutti i docenti dal file orario.json
+                if (this.data.docenti && Array.isArray(this.data.docenti)) {
+                    this.data.docenti.forEach(docente => {
+                        if (docente.nome && docente.nome !== 'N/D' && docente.nome.trim().length > 0) {
+                            this.allTeachers.add(docente.nome.trim());
+                        }
+                    });
+                }
+            },
+
+            setupAutocomplete() {
+                const input = document.getElementById('docente-input');
+                const suggestions = document.getElementById('autocomplete-suggestions');
+                
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value.trim().toLowerCase();
+                    
+                    if (value.length < 2) {
+                        suggestions.classList.remove('active');
+                        return;
+                    }
+                    
+                    const matches = [...this.allTeachers]
+                        .filter(teacher => teacher.toLowerCase().includes(value))
+                        .sort()
+                        .slice(0, 10);
+                    
+                    if (matches.length === 0) {
+                        suggestions.classList.remove('active');
+                        return;
+                    }
+                    
+                    suggestions.innerHTML = '';
+                    matches.forEach(teacher => {
+                        const div = document.createElement('div');
+                        div.className = 'autocomplete-item';
+                        div.innerHTML = teacher.replace(new RegExp(`(${value})`, 'gi'), '<strong>$1</strong>');
+                        div.addEventListener('click', () => {
+                            input.value = teacher;
+                            suggestions.classList.remove('active');
+                        });
+                        suggestions.appendChild(div);
+                    });
+                    
+                    suggestions.classList.add('active');
+                });
+                
+                // Close suggestions on click outside
+                document.addEventListener('click', (e) => {
+                    if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+                        suggestions.classList.remove('active');
+                    }
+                });
+            },
+
+            switchTab(tabName) {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+                document.getElementById(`tab-${tabName}`).classList.add('active');
+                
+                this.currentTab = tabName;
+            },
+
+            searchByDocente() {
+                const teacherName = document.getElementById('docente-input').value.trim();
+                const day = document.getElementById('day-select-docente').value;
+                const timeStart = document.getElementById('time-start-docente').value;
+                const timeEnd = document.getElementById('time-end-docente').value;
+                
+                if (!teacherName) {
+                    alert('⚠️ Inserisci il nome di un docente');
+                    return;
+                }
+                
+                if (timeStart && timeEnd && timeStart >= timeEnd) {
+                    alert('⚠️ L\'ora di fine deve essere successiva all\'ora di inizio');
+                    return;
+                }
+                
+                // Trova il docente nell'array docenti
+                const docente = this.data.docenti.find(d => 
+                    d.nome.toLowerCase().includes(teacherName.toLowerCase())
+                );
+                
+                if (!docente) {
+                    this.displayDocenteResults([], teacherName);
+                    return;
+                }
+                
+                // Prendi le lezioni del docente
+                let lessons = docente.lezioni || [];
+                
+                // Filtra per giorno
+                if (day) {
+                    lessons = lessons.filter(l => l.giorno === day);
+                }
+                
+                // Filtra per intervallo orario
+                if (timeStart && timeEnd) {
+                    const startMin = this.timeToMinutes(timeStart);
+                    const endMin = this.timeToMinutes(timeEnd);
+                    
+                    lessons = lessons.filter(l => {
+                        const lessonStart = this.timeToMinutes(l.ora_inizio);
+                        const lessonEnd = this.timeToMinutes(l.ora_fine);
+                        return !(lessonEnd <= startMin || lessonStart >= endMin);
+                    });
+                }
+                
+                // Aggiungi nome docente per display
+                const results = lessons.map(l => ({
+                    ...l,
+                    docente: docente.nome
+                }));
+                
+                // Ordina per giorno e ora
+                const dayOrder = {'Lunedì': 0, 'Martedì': 1, 'Mercoledì': 2, 'Giovedì': 3, 'Venerdì': 4};
+                results.sort((a, b) => {
+                    const dayDiff = dayOrder[a.giorno] - dayOrder[b.giorno];
+                    if (dayDiff !== 0) return dayDiff;
+                    return a.ora_inizio.localeCompare(b.ora_inizio);
+                });
+                
+                this.displayDocenteResults(results, teacherName);
+            },
+
+            displayDocenteResults(lessons, teacherName) {
+                const container = document.getElementById('results-list-docente');
+                const header = document.getElementById('results-header-docente');
+                const count = document.getElementById('results-count-docente');
+                
+                header.style.display = 'flex';
+                count.textContent = lessons.length;
+                
+                if (lessons.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fas fa-search"></i></div>
+                            <div class="empty-state-text">Nessuna lezione trovata</div>
+                            <div class="empty-state-subtext">Verifica il nome del docente</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                lessons.forEach(lesson => {
+                    const card = this.createLessonCard(lesson, lesson.classe, lesson.aula);
+                    container.appendChild(card);
+                });
+            },
+
+            createLessonCard(lesson, className, aula) {
+                const card = document.createElement('div');
+                card.className = 'lesson-card';
+                
+                // Gestisci entrambi i formati: da classi o da docenti
+                const displayClass = className || lesson.classe || 'N/D';
+                const displayAula = aula || 'N/D';
+                const displayMateria = lesson.materia || 'N/D';
+                
+                // Se lesson.tipo === 'disposizione', mostra badge speciale
+                const tipoHTML = lesson.tipo === 'disposizione'
+                    ? `<div class="lesson-info-row">
+                        <i class="fas fa-calendar-check lesson-info-icon" style="color: #28a745;"></i>
+                        <div class="lesson-info-content" style="color: #28a745; font-weight: 600;">Disposizione</div>
+                    </div>`
+                    : '';
+                
+                const teachersHTML = lesson.docenti && lesson.docenti.length > 0 && lesson.docenti[0] !== 'N/D'
+                    ? `<div class="lesson-info-row">
+                        <i class="fas fa-chalkboard-teacher lesson-info-icon"></i>
+                        <div class="lesson-info-content">${lesson.docenti.join(', ')}</div>
+                    </div>`
+                    : lesson.docente
+                    ? `<div class="lesson-info-row">
+                        <i class="fas fa-chalkboard-teacher lesson-info-icon"></i>
+                        <div class="lesson-info-content">${lesson.docente}</div>
+                    </div>`
+                    : '';
+                
+                const labHTML = lesson.laboratorio
+                    ? `<div class="lesson-info-row">
+                        <i class="fas fa-flask lesson-info-icon"></i>
+                        <div class="lesson-info-content">
+                            <span class="lesson-info-label">Laboratorio:</span> ${lesson.laboratorio}
+                        </div>
+                    </div>`
+                    : '';
+                
+                const badgeHTML = this.getIndirizzoBadge(displayClass);
+                
+                card.innerHTML = `
+                    <div class="lesson-header">
+                        <div class="lesson-day">${lesson.giorno}</div>
+                        <div class="lesson-time">${lesson.ora_inizio} - ${lesson.ora_fine}</div>
+                    </div>
+                    <div class="lesson-info">
+                        ${tipoHTML}
+                        <div class="lesson-info-row">
+                            <i class="fas fa-users lesson-info-icon"></i>
+                            <div class="lesson-info-content">
+                                <span class="lesson-info-label">Classe:</span> ${displayClass}
+                                ${badgeHTML}
+                                ${displayAula !== 'N/D' ? `<span class="lesson-aula"><i class="fas fa-door-open"></i> ${displayAula}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="lesson-info-row">
+                            <i class="fas fa-book lesson-info-icon"></i>
+                            <div class="lesson-info-content">
+                                <span class="lesson-info-label">Materia:</span> ${displayMateria}
+                            </div>
+                        </div>
+                        ${teachersHTML}
+                        ${labHTML}
+                    </div>
+                `;
+                
+                return card;
+            },
+
+            showClassSchedule() {
+                const className = document.getElementById('schedule-classe-select').value;
+                
+                if (!className) {
+                    document.getElementById('schedule-view').style.display = 'none';
+                    return;
+                }
+                
+                const classe = this.data.classi.find(c => c.nome === className);
+                if (!classe) return;
+                
+                document.getElementById('schedule-view').style.display = 'block';
+document.getElementById('schedule-class-name').textContent = classe.nome;
+                document.getElementById('schedule-class-aula').textContent = classe.aula;
+                document.getElementById('schedule-total-lessons').textContent = classe.lezioni.length;
+                
+                this.renderScheduleTable(classe);
+            },
+
+            renderScheduleTable(classe) {
+                const tbody = document.getElementById('schedule-body');
+                tbody.innerHTML = '';
+                
+                // Usa i giorni dal database
+                const giorni = this.data.orario && this.data.orario.giorni ? this.data.orario.giorni : ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì'];
+                
+                // Usa le fasce orarie dal database
+                const ore = this.data.orario && this.data.orario.fasce_orarie 
+                    ? this.data.orario.fasce_orarie.map(f => f.split('-')[0])
+                    : ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+                
+                const occupiedCells = {};
+                
+                ore.forEach((ora, oraIndex) => {
+                    const row = document.createElement('tr');
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.className = 'time-col';
+                    timeCell.textContent = ora;
+                    row.appendChild(timeCell);
+                    
+                    giorni.forEach((giorno) => {
+                        const cellKey = `${giorno}-${oraIndex}`;
+                        
+                        if (occupiedCells[cellKey]) {
+                            return;
+                        }
+                        
+                        const cell = document.createElement('td');
+                        
+                        const lessons = classe.lezioni.filter(l => 
+                            l.giorno === giorno && l.ora_inizio === ora
+                        );
+                        
+                        if (lessons.length > 0) {
+                            const lesson = lessons[0];
+                            
+                            const lessonDiv = document.createElement('div');
+                            lessonDiv.className = 'schedule-lesson';
+                            
+                            if (lesson.durata_minuti >= 180) {
+                                lessonDiv.classList.add('duration-3h');
+                            } else if (lesson.durata_minuti >= 120) {
+                                lessonDiv.classList.add('duration-2h');
+                            }
+                            
+                            const teachersHTML = lesson.docenti && lesson.docenti.length > 0 && lesson.docenti[0] !== 'N/D'
+                                ? `<div class="schedule-teachers"><i class="fas fa-chalkboard-teacher"></i> ${lesson.docenti.join(', ')}</div>`
+                                : '';
+                            
+                            const labHTML = lesson.laboratorio
+                                ? `<div class="schedule-teachers"><i class="fas fa-flask"></i> ${lesson.laboratorio}</div>`
+                                : '';
+                            
+                            lessonDiv.innerHTML = `
+                                <div class="schedule-subject">${lesson.materia}</div>
+                                ${teachersHTML}
+                                ${labHTML}
+                            `;
+                            
+                            cell.appendChild(lessonDiv);
+                            
+                            const hoursSpan = Math.ceil(lesson.durata_minuti / 60);
+                            if (hoursSpan > 1) {
+                                cell.rowSpan = hoursSpan;
+                                for (let i = 1; i < hoursSpan; i++) {
+                                    occupiedCells[`${giorno}-${oraIndex + i}`] = true;
+                                }
+                            }
+                        } else {
+                            cell.className = 'empty';
+                            cell.textContent = '-';
+                        }
+                        
+                        row.appendChild(cell);
+                    });
+                    
+                    tbody.appendChild(row);
+                });
+            },
+
+            formatClasseName(nome) {
+                // Formatta il nome della classe per la visualizzazione
+                // Es: 3ABio -> 3A Biotecnologie, 4CEle -> 4C Elettronica
+                const indirizzi = {
+                    'Bio': 'Biotecnologie',
+                    'Ele': 'Elettronica',
+                    'Inf': 'Informatica',
+                    'Mec': 'Meccanica',
+                    'Gr': 'Grafica'
+                };
+                
+                const match = nome.match(/^(\d[A-Z])(.*)$/);
+                if (match) {
+                    const base = match[1];
+                    const indirizzo = match[2];
+                    
+                    if (indirizzo && indirizzi[indirizzo]) {
+                        return `${base} ${indirizzi[indirizzo]}`;
+                    }
+                    return nome;
+                }
+                return nome;
+            },
+
+            getIndirizzoBadge(nome) {
+                // Crea un badge HTML per l'indirizzo
+                const indirizzi = {
+                    'Bio': { nome: 'Bio', icon: 'fa-dna', class: 'bio' },
+                    'Ele': { nome: 'Ele', icon: 'fa-bolt', class: 'ele' },
+                    'Inf': { nome: 'Inf', icon: 'fa-laptop-code', class: 'inf' },
+                    'Mec': { nome: 'Mec', icon: 'fa-cog', class: 'mec' },
+                    'Gr': { nome: 'Gr', icon: 'fa-palette', class: 'gr' }
+                };
+                
+                const match = nome.match(/^\d[A-Z](.*)$/);
+                if (match && match[1]) {
+                    const indirizzo = match[1];
+                    const info = indirizzi[indirizzo];
+                    if (info) {
+                        return `<span class="classe-badge ${info.class}"><i class="fas ${info.icon}"></i> ${info.nome}</span>`;
+                    }
+                }
+                return '';
+            },
+
+            timeToMinutes(time) {
+                const [h, m] = time.split(':').map(Number);
+                return h * 60 + m;
+            },
+
+            cercaDisponibili() {
+                const giorno = document.getElementById('giorno-disp-readonly').value;
+                const oraInizio = document.getElementById('ora-disp').value;
+                const data = document.getElementById('data-disp').value;
+                const nomeDocente = document.getElementById('nome-disp').value.trim().toLowerCase();
+                
+                const showDisp = document.getElementById('filter-disp').checked;
+                const showLib = document.getElementById('filter-lib').checked;
+                const showOcc = document.getElementById('filter-occ').checked;
+
+                if (!data) {
+                    alert('⚠️ Seleziona una data');
+                    return;
+                }
+
+                if (!giorno || !oraInizio) {
+                    alert('⚠️ Seleziona fascia oraria');
+                    return;
+                }
+
+                if (!this.data || !this.data.docenti) {
+                    alert('⚠️ Orario non ancora caricato');
+                    return;
+                }
+
+                const classiAssenti = data ?
+                    (this.classiAssentiPerData.find(item => item.date === data)?.classi || []) :
+                    [];
+
+                const tuttiDocenti = this.data.docenti
+                    .map(docente => {
+                        const haDisposizione = docente.lezioni.some(lez =>
+                            lez.giorno === giorno &&
+                            lez.tipo === 'disposizione' &&
+                            lez.ora_inizio === oraInizio
+                        );
+
+                        let isLiberato = false;
+                        let classeLiberata = null;
+                        if (classiAssenti.length > 0) {
+                            for (const classe of classiAssenti) {
+                                const lezione = this.data.classi
+                                    .find(c => c.nome === classe)
+                                    ?.lezioni.find(lez =>
+                                        lez.giorno === giorno &&
+                                        lez.ora_inizio === oraInizio &&
+                                        lez.docenti.includes(docente.nome)
+                                    );
+                                if (lezione) {
+                                    isLiberato = true;
+                                    classeLiberata = classe;
+                                    break;
+                                }
+                            }
+                        }
+
+                        // Cerca se il docente è occupato con una lezione in qualsiasi classe
+                        let classeOccupato = null;
+                        let isOccupato = false;
+                        
+                        for (const classe of this.data.classi) {
+                            // Salta se la classe è assente
+                            if (classiAssenti.includes(classe.nome)) continue;
+                            
+                            const lezione = classe.lezioni.find(lez =>
+                                lez.giorno === giorno &&
+                                lez.ora_inizio === oraInizio &&
+                                lez.docenti && lez.docenti.includes(docente.nome)
+                            );
+                            
+                            if (lezione) {
+                                isOccupato = true;
+                                classeOccupato = classe.nome;
+                                break;
+                            }
+                        }
+
+                        return {
+                            nome: docente.nome,
+                            disponibile: haDisposizione,
+                            liberato: isLiberato,
+                            classeLiberata: classeLiberata,
+                            occupato: isOccupato,
+                            classeOccupato: classeOccupato
+                        };
+                    })
+                    .filter(d => {
+                        if (nomeDocente && !d.nome.toLowerCase().includes(nomeDocente)) {
+                            return false;
+                        }
+                        if (d.disponibile && showDisp) return true;
+                        if (d.liberato && showLib) return true;
+                        if (d.occupato && showOcc) return true;
+                        return false;
+                    })
+                    .sort((a, b) => {
+                        if (a.disponibile && !b.disponibile) return -1;
+                        if (!a.disponibile && b.disponibile) return 1;
+                        if (a.liberato && !b.liberato) return -1;
+                        if (!a.liberato && b.liberato) return 1;
+                        return a.nome.localeCompare(b.nome);
+                    });
+
+                this.displayDisponibiliResults(tuttiDocenti, giorno, oraInizio);
+            },
+
+            displayDisponibiliResults(docenti, giorno, oraInizio) {
+                const container = document.getElementById('results-list-disp');
+                const header = document.getElementById('results-header-disp');
+                const count = document.getElementById('results-count-disp');
+
+                header.style.display = 'flex';
+                count.textContent = docenti.length;
+
+                if (docenti.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fas fa-user-slash"></i></div>
+                            <div class="empty-state-text">Nessun docente trovato</div>
+                            <div class="empty-state-subtext">Prova con filtri diversi</div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const [h] = oraInizio.split(':').map(Number);
+                const oraFine = `${(h + 1).toString().padStart(2, '0')}:00`;
+
+                container.innerHTML = '';
+                docenti.forEach(d => {
+                    const card = document.createElement('div');
+                    card.className = 'docente-card';
+
+                    let badges = '';
+                    if (d.disponibile) {
+                        badges += '<span class="badge badge-disposizione"><i class="fas fa-check"></i> A disposizione</span>';
+                    }
+                    if (d.liberato) {
+                        badges += '<span class="badge badge-liberato"><i class="fas fa-bus"></i> Classe assente</span>';
+                    }
+                    if (d.occupato) {
+                        badges += '<span class="badge badge-occupato"><i class="fas fa-book"></i> Occupato</span>';
+                    }
+
+                    let info = `<div class="info-row"><i class="fas fa-clock"></i> ${giorno}, ${oraInizio} - ${oraFine}</div>`;
+                    if (d.classeLiberata) {
+                        info += `<div class="info-row"><i class="fas fa-graduation-cap"></i> Liberato da classe ${d.classeLiberata}</div>`;
+                    }
+                    if (d.classeOccupato) {
+                        info += `<div class="info-row"><i class="fas fa-chalkboard-teacher"></i> Lezione con classe ${d.classeOccupato}</div>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="docente-name">${d.nome}</div>
+                        ${badges}
+                        ${info}
+                    `;
+
+                    container.appendChild(card);
+                });
+            }
+        };
+
+        // Initialize app
+        app.init();
+    </script>
+</body>
+</html>

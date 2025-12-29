@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Gestione Sostituzioni</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .app-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 40px rgba(0,0,0,0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 20px 0 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        header p#header-subtitle {
+            min-height: 20px;
+        }
+
+        /* Tab Menu */
+        .tab-menu {
+            display: flex;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+
+        .tab-item {
+            flex: 1;
+            padding: 12px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tab-item i {
+            font-size: 1.2em;
+        }
+
+        .tab-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .tab-item.active {
+            color: white;
+            border-bottom-color: white;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Stats counters */
+        .stats-container {
+            display: flex;
+            padding: 15px 20px;
+            background: rgba(0,0,0,0.05);
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .stat-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .search-section {
+            padding: 20px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .search-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .search-group {
+            margin-bottom: 15px;
+        }
+
+        .search-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .search-group input,
+        .search-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .search-group input:focus,
+        .search-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Schedule View */
+        .schedule-view {
+            padding: 20px;
+        }
+
+        .schedule-header {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-class-name {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .schedule-date-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            font-size: 1em;
+            margin-top: 8px;
+        }
+
+        .schedule-table-container {
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .schedule-table th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .schedule-table td {
+            border: 1px solid #e9ecef;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+            min-height: 60px;
+            font-size: 0.85em;
+        }
+
+        .schedule-table td.time-col {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #667eea;
+            white-space: nowrap;
+        }
+
+        .schedule-table td.empty {
+            background: #fafafa;
+            color: #ccc;
+        }
+
+        .schedule-lesson {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .schedule-lesson:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .schedule-lesson.selected {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.5);
+        }
+
+        .schedule-subject {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .schedule-teachers {
+            font-size: 0.85em;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .schedule-lab {
+            font-size: 0.8em;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .lesson-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .lesson-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .lesson-detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .lesson-detail-icon {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .lesson-detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .docenti-disponibili-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .docenti-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .docente-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .docente-card:hover {
+            border-color: #667eea;
+            transform: translateX(4px);
+        }
+
+        .docente-card.selected {
+            background: #e7f3ff;
+            border-color: #667eea;
+        }
+
+        .docente-card.disponibile {
+            border-left: 4px solid #28a745;
+        }
+
+        .docente-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .docente-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .docente-status {
+            font-size: 0.85em;
+            color: #666;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:active {
+            transform: scale(0.98);
+            background: #5a6268;
+        }
+
+        .btn-confirm {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-confirm:active {
+            transform: scale(0.98);
+            background: #218838;
+        }
+
+        .btn-confirm:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .no-disponibili {
+            text-align: center;
+            padding: 40px 20px;
+            color: #adb5bd;
+        }
+
+        .no-disponibili-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        /* Multi-selection */
+        .docenti-selected-count {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .docente-card.selected {
+            background: #e7f3ff;
+            border-color: #667eea;
+            position: relative;
+        }
+
+        .docente-card.selected::after {
+            content: '\2713';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #667eea;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* Card Riepilogativa */
+        .summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .summary-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .summary-subtitle {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .summary-section {
+            margin-bottom: 20px;
+        }
+
+        .summary-section-title {
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        .summary-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .summary-info-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .summary-info-label {
+            font-size: 0.8em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .summary-info-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .summary-docenti-list {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .summary-docente-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .summary-docente-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-docente-icon {
+            background: #28a745;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .summary-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-share {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-share:active {
+            background: #138496;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-save:active {
+            background: #218838;
+        }
+
+        .saved-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        /* Filtri */
+        .filter-btn {
+            background: white;
+            border: 2px solid #e9ecef;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f8f9fa;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+
+        .no-results-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .docente-badge-liberato {
+            display: inline-block;
+            background: #ffc107;
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .docente-card.liberato {
+            border-left: 4px solid #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1><i class="fas fa-user-clock"></i> Sostituzioni</h1>
+            <p id="header-subtitle">Caricamento...</p>
+            
+            <!-- Tab Menu -->
+            <div class="tab-menu">
+                <div class="tab-item active" onclick="app.switchTab('visualizza')" id="tab-visualizza">
+                    <i class="fas fa-list"></i>
+                    <span>Visualizza</span>
+                </div>
+                <div class="tab-item" onclick="app.switchTab('inserisci')" id="tab-inserisci">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Inserisci</span>
+                </div>
+                <div class="tab-item" onclick="app.switchTab('gestisci')" id="tab-gestisci">
+                    <i class="fas fa-cog"></i>
+                    <span>Gestisci</span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Stats -->
+        <div class="stats-container">
+            <div class="stat-item">
+                <div class="stat-number" id="stat-oggi">0</div>
+                <div class="stat-label">Oggi</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="stat-totali">0</div>
+                <div class="stat-label">Totali</div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Inserisci -->
+        <div class="tab-content" id="content-inserisci" style="display: none;">
+        <div class="search-section">
+            <div class="search-title"><i class="fas fa-plus-circle"></i> Nuova Sostituzione</div>
+            
+            <div class="search-group">
+                <label for="classe-select">Classe</label>
+                <select id="classe-select" onchange="app.loadClassSchedule()">
+                    <option value="">-- Seleziona una classe --</option>
+                </select>
+            </div>
+
+            <div class="search-group">
+                <label for="data-sostituzione">Data Sostituzione</label>
+                <input type="date" id="data-sostituzione" onchange="app.updateScheduleDay()">
+            </div>
+
+            <div style="padding: 15px; background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; margin-top: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <i class="fas fa-bus" style="font-size: 1.5em; color: #ff9800;"></i>
+                    <div>
+                        <div style="font-weight: 600; color: #856404;">Gestisci Classi Assenti</div>
+                        <div style="font-size: 0.85em; color: #856404;">Gite, eventi, assemblee</div>
+                    </div>
+                </div>
+                <button onclick="window.open('gestione_classi_assenti.html', '_blank')" style="width: 100%; background: #ff9800; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                    <i class="fas fa-external-link-alt"></i> Apri gestione classi assenti
+                </button>
+            </div>
+        </div>
+
+        <div class="schedule-view" id="schedule-view" style="display: none;">
+            <div class="schedule-header">
+                <div class="schedule-class-name" id="schedule-class-name"></div>
+                <div class="schedule-date-info">
+                    <i class="fas fa-calendar-day"></i>
+                    <span id="schedule-day-name"></span>
+                </div>
+            </div>
+
+            <div class="schedule-table-container">
+                <table class="schedule-table">
+                    <thead>
+                        <tr>
+                            <th>Ora</th>
+                            <th id="day-header">-</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schedule-body">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="empty-state" id="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-calendar-check"></i></div>
+            <div>Seleziona una classe e una data per visualizzare l'orario</div>
+        </div>
+        </div><!-- Fine content-inserisci -->
+
+        <!-- Tab Content: Visualizza -->
+        <div class="tab-content" id="content-visualizza" style="display: block;">
+        <div id="saved-substitutions-container">
+            <div style="padding: 20px; background: #f8f9fa; border-bottom: 2px solid #e9ecef;">
+                
+                <!-- Barra di ricerca -->
+                <div style="position: relative;">
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        placeholder="Cerca per classe, docente, data, materia..."
+                        oninput="app.searchSubstitutions()"
+                        style="width: 100%; padding: 12px 40px 12px 40px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 1em;"
+                    />
+                    <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #adb5bd;"></i>
+                    <button 
+                        id="clear-search" 
+                        onclick="app.clearSearch()" 
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: #6c757d; cursor: pointer; display: none;"
+                    >
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+                
+                <!-- Filtri rapidi -->
+                <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                    <button onclick="app.filterByDate('today')" class="filter-btn">
+                        <i class="fas fa-calendar-day"></i> Oggi
+                    </button>
+                    <button onclick="app.filterByDate('week')" class="filter-btn">
+                        <i class="fas fa-calendar-week"></i> Questa settimana
+                    </button>
+                    <button onclick="app.clearSearch()" class="filter-btn">
+                        <i class="fas fa-list"></i> Tutte
+                    </button>
+                    <button id="btn-pubblica" onclick="app.showPublishDialog()" class="filter-btn" style="background: #28a745 !important; color: white !important; border-color: #28a745 !important; display: inline-block !important; visibility: visible !important;">
+                        <i class="fas fa-bullhorn"></i> Pubblica
+                    </button>
+                </div>
+            </div>
+            <div id="saved-list" style="padding: 20px;"></div>
+        </div>
+        </div><!-- Fine content-visualizza -->
+        
+        <!-- Tab Content: Gestisci -->
+        <div class="tab-content" id="content-gestisci" style="display: none;">
+            <div style="padding: 20px;">
+                <div style="text-align: center; padding: 60px 20px; color: #adb5bd;">
+                    <div style="font-size: 4em; margin-bottom: 15px;">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div style="font-size: 1.1em; font-weight: 600;">Gestione Avanzata</div>
+                    <div style="font-size: 0.9em; margin-top: 8px;">Funzionalità in arrivo...</div>
+                </div>
+            </div>
+        </div><!-- Fine content-gestisci -->
+    </div>
+
+    <!-- Modal Selezione Docente -->
+    <div class="modal" id="modal-docente">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Assegna Sostituzione</div>
+                <div class="modal-subtitle" id="modal-subtitle"></div>
+            </div>
+            <div class="modal-body">
+                <div class="lesson-details">
+                    <div class="lesson-detail-row">
+                        <i class="fas fa-clock lesson-detail-icon"></i>
+                        <span class="lesson-detail-label">Ora:</span>
+                        <span id="modal-time"></span>
+                    </div>
+                    <div class="lesson-detail-row">
+                        <i class="fas fa-book lesson-detail-icon"></i>
+                        <span class="lesson-detail-label">Materia:</span>
+                        <span id="modal-subject"></span>
+                    </div>
+                    <div class="lesson-detail-row">
+                        <i class="fas fa-chalkboard-teacher lesson-detail-icon"></i>
+                        <span class="lesson-detail-label">Docente:</span>
+                        <span id="modal-teacher"></span>
+                    </div>
+                </div>
+
+                <div class="docenti-disponibili-title">
+                    <i class="fas fa-user-check"></i> Docenti Disponibili
+                    <div id="multiora-info" style="display: none; font-size: 0.85em; color: #666; font-weight: normal; margin-top: 5px;">
+                        <i class="fas fa-info-circle"></i> Lezione multiora: seleziona uno o più docenti
+                    </div>
+                </div>
+                <div id="selected-count" class="docenti-selected-count" style="display: none;">
+                    <i class="fas fa-users"></i> <span id="selected-count-text">0 docenti selezionati</span>
+                </div>
+                <div class="docenti-list" id="docenti-list">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="app.closeModal()">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+                <button class="btn btn-confirm" id="btn-confirm" onclick="app.confirmSubstitution()" disabled>
+                    <i class="fas fa-check"></i> Conferma
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pubblica Sostituzioni -->
+    <div class="modal" id="modal-publish">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title"><i class="fas fa-bullhorn"></i> Pubblica Sostituzioni</div>
+                <div class="modal-subtitle">Condividi tutte le sostituzioni di una data</div>
+            </div>
+            <div class="modal-body">
+                <div class="search-group">
+                    <label for="publish-date">Seleziona Data</label>
+                    <input type="date" id="publish-date" style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 16px;">
+                </div>
+                <div id="publish-preview" style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; max-height: 300px; overflow-y: auto; display: none;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #333;">Anteprima:</div>
+                    <div id="publish-preview-content" style="font-size: 0.9em; white-space: pre-wrap; font-family: monospace;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="app.closePublishModal()">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+                <button class="btn" style="background: #28a745; color: white;" id="btn-publish" onclick="app.publishByDate()" disabled>
+                    <i class="fas fa-share-alt"></i> Condividi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pubblica Classi Assenti -->
+    <div class="modal" id="modal-publish-classi">
+        <div class="modal-content">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);">
+                <div class="modal-title"><i class="fas fa-bus"></i> Pubblica Classi Assenti</div>
+                <div class="modal-subtitle">Condividi l'elenco delle classi assenti</div>
+            </div>
+            <div class="modal-body">
+                <div id="publish-classi-preview" style="padding: 15px; background: #f8f9fa; border-radius: 8px; max-height: 400px; overflow-y: auto;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #333;">Anteprima:</div>
+                    <div id="publish-classi-preview-content" style="font-size: 0.9em; white-space: pre-wrap; font-family: monospace;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-cancel" onclick="app.closePublishClassiModal()">
+                    <i class="fas fa-times"></i> Annulla
+                </button>
+                <button class="btn" style="background: #ff9800; color: white;" id="btn-publish-classi" onclick="app.confirmPublishClassiAssenti()">
+                    <i class="fas fa-share-alt"></i> Condividi
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK - MUST load before app script -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        const app = {
+            data: null,
+            selectedClass: null,
+            selectedDate: null,
+            selectedDay: null,
+            selectedLesson: null,
+            selectedDocenti: [], // Array per selezione multipla
+            savedSubstitutions: [], // Array sostituzioni salvate
+            classiAssenti: [], // Array classi assenti per la data selezionata
+
+            // Load dynamic header from Firebase
+            loadHeader() {
+                if (typeof firebase !== 'undefined' && firebase.database) {
+                    firebase.database().ref('orario').once('value')
+                        .then(snapshot => {
+                            const data = snapshot.val();
+                            if (data) {
+                                const pageTitle = document.getElementById('page-title');
+                                const headerSubtitle = document.getElementById('header-subtitle');
+                                
+                                if (data.istituto && pageTitle) {
+                                    pageTitle.textContent = `Gestione Sostituzioni - ${data.istituto}`;
+                                }
+                                if (data.istituto && data.anno_scolastico && headerSubtitle) {
+                                    headerSubtitle.textContent = `${data.istituto} - ${data.anno_scolastico}`;
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Errore caricamento header:', error);
+                        });
+                }
+            },
+
+            async init() {
+                try {
+                    // Load dynamic header
+                    this.loadHeader();
+                    
+                    this.data = await FirebaseManager.loadOrario();
+                    this.populateClassSelect();
+                    
+                    // Imposta data di oggi
+                    document.getElementById('data-sostituzione').valueAsDate = new Date();
+                    this.updateSelectedDate();
+                    
+                    // Attiva SOLO listener Firebase per aggiornamenti in tempo reale
+                    // Il listener caricherà automaticamente le sostituzioni
+                    this.setupFirebaseListeners();
+                    
+                    // Imposta tab iniziale
+                    this.switchTab('visualizza');
+                } catch (error) {
+                    console.error('Errore caricamento dati:', error);
+                    alert('Errore nel caricamento dei dati');
+                }
+            },
+            
+            setupFirebaseListeners() {
+                try {
+                    if (typeof FirebaseManager !== 'undefined') {
+                        // Listener per sostituzioni
+                        FirebaseManager.onSostituzioniChange((sostituzioni) => {
+                            console.log('🔄 Callback listener ricevuta con', sostituzioni.length, 'sostituzioni');
+                            console.log('📋 IDs ricevuti:', sostituzioni.map(s => s.id));
+                            this.savedSubstitutions = sostituzioni;
+                            // Non salviamo in localStorage - Firebase è la fonte di verità
+                            this.renderSavedSubstitutions();
+                            this.updateStats();
+                            console.log('✅ UI aggiornata con', this.savedSubstitutions.length, 'sostituzioni');
+                        });
+                        console.log('✅ Listener Firebase attivi');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Impossibile attivare listener Firebase:', error);
+                }
+            },
+
+            switchTab(tab) {
+                // Rimuovi active da tutti i tab
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                
+                // Nascondi tutti i contenuti
+                document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+                
+                // Attiva tab selezionato
+                document.getElementById('tab-' + tab).classList.add('active');
+                document.getElementById('content-' + tab).style.display = 'block';
+            },
+
+            updateStats() {
+                const oggi = new Date().toISOString().split('T')[0];
+                const sostituzioniOggi = this.savedSubstitutions.filter(s => s.data === oggi).length;
+                const sostituzioniTotali = this.savedSubstitutions.length;
+                
+                document.getElementById('stat-oggi').textContent = sostituzioniOggi;
+                document.getElementById('stat-totali').textContent = sostituzioniTotali;
+            },
+
+            populateClassSelect() {
+                const select = document.getElementById('classe-select');
+                
+                this.data.classi
+                    .sort((a, b) => a.nome.localeCompare(b.nome))
+                    .forEach(classe => {
+                        const option = document.createElement('option');
+                        option.value = classe.nome;
+                        option.textContent = `${classe.nome} - Aula ${classe.aula}`;
+                        select.appendChild(option);
+                    });
+            },
+
+            updateClassSelectOptions() {
+                // Aggiorna dropdown filtrando le classi assenti
+                const select = document.getElementById('classe-select');
+                const currentValue = select.value;
+                
+                // Rimuovi tutte le opzioni tranne la prima (placeholder)
+                while (select.options.length > 1) {
+                    select.remove(1);
+                }
+                
+                // Riaggiungi solo le classi NON assenti
+                this.data.classi
+                    .filter(c => !this.classiAssenti.includes(c.nome))
+                    .sort((a, b) => a.nome.localeCompare(b.nome))
+                    .forEach(classe => {
+                        const option = document.createElement('option');
+                        option.value = classe.nome;
+                        option.textContent = `${classe.nome} - Aula ${classe.aula}`;
+                        select.appendChild(option);
+                    });
+                
+                // Ripristina valore se ancora valido
+                if (currentValue && !this.classiAssenti.includes(currentValue)) {
+                    select.value = currentValue;
+                } else if (this.classiAssenti.includes(currentValue)) {
+                    // Se la classe selezionata è ora assente, resetta
+                    select.value = '';
+                    this.selectedClass = null;
+                    document.getElementById('schedule-view').style.display = 'none';
+                    document.getElementById('empty-state').style.display = 'block';
+                }
+            },
+
+            loadClassSchedule() {
+                const className = document.getElementById('classe-select').value;
+                if (!className) {
+                    document.getElementById('schedule-view').style.display = 'none';
+                    document.getElementById('empty-state').style.display = 'block';
+                    return;
+                }
+
+                this.selectedClass = this.data.classi.find(c => c.nome === className);
+                this.updateScheduleDay();
+            },
+
+            updateSelectedDate() {
+                const dateInput = document.getElementById('data-sostituzione').value;
+                if (!dateInput) return;
+
+                this.selectedDate = dateInput;
+                const date = new Date(dateInput + 'T12:00:00');
+                const giorni = ['Domenica', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato'];
+                this.selectedDay = giorni[date.getDay()];
+                
+                // Carica classi assenti per questa data
+                this.loadClassiAssentiForDate(dateInput);
+            },
+
+
+            async saveClassiAssentiForDate() {
+                if (!this.selectedDate) return;
+                
+                // Salva in localStorage (backup)
+                let allClassiAssenti = {};
+                const saved = localStorage.getItem('classiAssenti');
+                if (saved) {
+                    try {
+                        allClassiAssenti = JSON.parse(saved);
+                    } catch (e) {
+                        console.error('Errore caricamento classi assenti:', e);
+                    }
+                }
+                
+                if (this.classiAssenti.length > 0) {
+                    allClassiAssenti[this.selectedDate] = this.classiAssenti;
+                } else {
+                    delete allClassiAssenti[this.selectedDate];
+                }
+                localStorage.setItem('classiAssenti', JSON.stringify(allClassiAssenti));
+                
+                // Salva su Firebase
+                try {
+                    if (typeof FirebaseManager !== 'undefined') {
+                        await FirebaseManager.saveClassiAssenti(this.selectedDate, this.classiAssenti);
+                        console.log('✅ Classi assenti sincronizzate su Firebase');
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Firebase non disponibile, salvato solo localmente:', error);
+                }
+            },
+
+            async loadClassiAssentiForDate(date) {
+                if (!date) return;
+                
+                // Prova a caricare da Firebase
+                try {
+                    if (typeof FirebaseManager !== 'undefined') {
+                        const classi = await FirebaseManager.loadClassiAssenti(date);
+                        this.classiAssenti = classi;
+                        console.log('✅ Classi assenti caricate da Firebase per', date);
+                    } else {
+                        // Fallback a localStorage
+                        this.loadClassiAssentiFromLocalStorage(date);
+                    }
+                } catch (error) {
+                    console.warn('⚠️ Firebase non disponibile, carico da localStorage');
+                    this.loadClassiAssentiFromLocalStorage(date);
+                }
+                
+                this.renderClassiAssenti();
+                this.updateClassSelectOptions();
+            },
+            
+            loadClassiAssentiFromLocalStorage(date) {
+                const saved = localStorage.getItem('classiAssenti');
+                if (saved) {
+                    try {
+                        const allClassiAssenti = JSON.parse(saved);
+                        this.classiAssenti = allClassiAssenti[date] || [];
+                    } catch (e) {
+                        console.error('Errore caricamento da localStorage:', e);
+                        this.classiAssenti = [];
+                    }
+                } else {
+                    this.classiAssenti = [];
+                }
+            },
+
+            renderClassiAssenti() {
+                // Non serve più renderizzare l'UI, le classi assenti sono gestite nella pagina dedicata
+                // Questa funzione viene mantenuta solo per compatibilità con il caricamento dati
+            },
+
+            updateScheduleDay() {
+                this.updateSelectedDate();
+                
+                if (!this.selectedClass || !this.selectedDay) {
+                    return;
+                }
+
+                // Mostra vista orario
+                document.getElementById('empty-state').style.display = 'none';
+                document.getElementById('schedule-view').style.display = 'block';
+
+                // Aggiorna header
+                document.getElementById('schedule-class-name').textContent = 
+                    `Classe ${this.selectedClass.nome}`;
+                document.getElementById('schedule-day-name').textContent = 
+                    `${this.selectedDay}, ${new Date(this.selectedDate + 'T12:00:00').toLocaleDateString('it-IT')}`;
+                document.getElementById('day-header').textContent = this.selectedDay.substring(0, 3);
+
+                // Filtra lezioni per il giorno selezionato
+                const lessons = this.selectedClass.lezioni
+                    .filter(l => l.giorno === this.selectedDay)
+                    .sort((a, b) => a.ora_inizio.localeCompare(b.ora_inizio));
+
+                this.renderScheduleTable(lessons);
+                this.renderDocentiInfo();
+            },
+
+            renderScheduleTable(lessons) {
+                const tbody = document.getElementById('schedule-body');
+                tbody.innerHTML = '';
+
+                if (lessons.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td class="time-col">-</td>
+                            <td class="empty">Nessuna lezione</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                // Crea mappa lezioni per ora di inizio
+                const lessonsByTime = {};
+                lessons.forEach(lesson => {
+                    lessonsByTime[lesson.ora_inizio] = lesson;
+                });
+
+                // Traccia quali slot sono già occupati da lezioni multiora
+                const occupiedSlots = new Set();
+
+                // Genera righe per ogni fascia oraria
+                const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00'];
+                timeSlots.forEach((time, index) => {
+                    const tr = document.createElement('tr');
+                    
+                    // Colonna ora
+                    const tdTime = document.createElement('td');
+                    tdTime.className = 'time-col';
+                    tdTime.textContent = time;
+                    tr.appendChild(tdTime);
+
+                    // Colonna lezione - salta se occupata da lezione precedente
+                    if (!occupiedSlots.has(time)) {
+                        const lesson = lessonsByTime[time];
+                        const tdLesson = document.createElement('td');
+                        
+                        if (lesson) {
+                            const duration = lesson.durata_minuti || 60;
+                            const rowspan = Math.ceil(duration / 60);
+                            const durationClass = duration >= 120 ? 'duration-2h' : '';
+                            
+                            // Imposta rowspan
+                            if (rowspan > 1) {
+                                tdLesson.rowSpan = rowspan;
+                                // Marca gli slot successivi come occupati
+                                for (let i = 1; i < rowspan; i++) {
+                                    if (index + i < timeSlots.length) {
+                                        occupiedSlots.add(timeSlots[index + i]);
+                                    }
+                                }
+                            }
+                            
+                            tdLesson.innerHTML = `
+                                <div class="schedule-lesson ${durationClass}" onclick="app.selectLesson(${JSON.stringify(lesson).replace(/"/g, '&quot;')})">
+                                    <div class="schedule-subject">${lesson.materia}</div>
+                                    <div class="schedule-teachers">${lesson.docenti.join(', ')}</div>
+                                    ${lesson.laboratorio ? `<div class="schedule-lab"><i class="fas fa-flask"></i> ${lesson.laboratorio}</div>` : ''}
+                                </div>
+                            `;
+                        } else {
+                            tdLesson.className = 'empty';
+                            tdLesson.textContent = '-';
+                        }
+                        tr.appendChild(tdLesson);
+                    }
+                    
+                    tbody.appendChild(tr);
+                });
+            },
+
+            renderDocentiInfo() {
+                // Conta docenti a disposizione e liberati per oggi
+                if (!this.data || !this.data.docenti || !this.selectedDay) return;
+                
+                const docentiDisposizione = [];
+                const docentiLiberati = [];
+                
+                this.data.docenti.forEach(docente => {
+                    // Cerca disposizioni
+                    const hasDisposizioneOggi = docente.lezioni.some(lez => 
+                        lez.giorno === this.selectedDay && lez.tipo === 'disposizione'
+                    );
+                    if (hasDisposizioneOggi) {
+                        docentiDisposizione.push(docente.nome);
+                    }
+                    
+                    // Cerca se è liberato da classe assente
+                    const isLiberatoOggi = this.data.classi.some(classe => {
+                        if (!this.classiAssenti.includes(classe.nome)) return false;
+                        return classe.lezioni.some(lez =>
+                            lez.giorno === this.selectedDay && lez.docenti.includes(docente.nome)
+                        );
+                    });
+                    if (isLiberatoOggi && !hasDisposizioneOggi) {
+                        docentiLiberati.push(docente.nome);
+                    }
+                });
+                
+                // Mostra info sotto l'orario
+                let infoHTML = '<div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">';
+                
+                if (docentiDisposizione.length > 0) {
+                    infoHTML += `
+                        <div style="margin-bottom: 10px;">
+                            <div style="font-weight: 600; color: #667eea; margin-bottom: 5px;">
+                                <i class="fas fa-user-check"></i> Docenti a Disposizione (${docentiDisposizione.length})
+                            </div>
+                            <div style="font-size: 0.9em; color: #666;">${docentiDisposizione.join(', ')}</div>
+                        </div>
+                    `;
+                }
+                
+                if (docentiLiberati.length > 0) {
+                    infoHTML += `
+                        <div>
+                            <div style="font-weight: 600; color: #ff9800; margin-bottom: 5px;">
+                                <i class="fas fa-bus"></i> Docenti Liberati da Classi Assenti (${docentiLiberati.length})
+                            </div>
+                            <div style="font-size: 0.9em; color: #666;">${docentiLiberati.join(', ')}</div>
+                        </div>
+                    `;
+                }
+                
+                if (docentiDisposizione.length === 0 && docentiLiberati.length === 0) {
+                    infoHTML += '<div style="color: #adb5bd; text-align: center;"><i class="fas fa-info-circle"></i> Nessun docente a disposizione o liberato oggi</div>';
+                }
+                
+                infoHTML += '</div>';
+                
+                // Inserisci dopo la tabella
+                const scheduleView = document.getElementById('schedule-view');
+                let infoContainer = document.getElementById('docenti-info-container');
+                if (!infoContainer) {
+                    infoContainer = document.createElement('div');
+                    infoContainer.id = 'docenti-info-container';
+                    scheduleView.appendChild(infoContainer);
+                }
+                infoContainer.innerHTML = infoHTML;
+            },
+
+            selectLesson(lesson) {
+                this.selectedLesson = lesson;
+                this.selectedDocenti = []; // Reset selezione multipla
+
+                // Evidenzia lezione selezionata
+                document.querySelectorAll('.schedule-lesson').forEach(el => {
+                    el.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+
+                // Apri modal
+                this.openModal();
+            },
+
+            openModal() {
+                const lesson = this.selectedLesson;
+                
+                document.getElementById('modal-title').textContent = 
+                    `Sostituzione - Classe ${this.selectedClass.nome}`;
+                document.getElementById('modal-subtitle').textContent = 
+                    this.selectedDay;
+                document.getElementById('modal-time').textContent = 
+                    `${lesson.ora_inizio} - ${lesson.ora_fine}`;
+                document.getElementById('modal-subject').textContent = lesson.materia;
+                document.getElementById('modal-teacher').textContent = lesson.docenti.join(', ');
+
+                // Mostra info multiora se durata > 60 minuti
+                const isMultiora = lesson.durata_minuti > 60;
+                document.getElementById('multiora-info').style.display = isMultiora ? 'block' : 'none';
+
+                // Carica docenti disponibili
+                this.loadDocentiDisponibili();
+
+                // Reset contatore selezioni
+                this.updateSelectedCount();
+
+                document.getElementById('modal-docente').classList.add('active');
+            },
+
+            closeModal() {
+                document.getElementById('modal-docente').classList.remove('active');
+                this.selectedLesson = null;
+                this.selectedDocenti = [];
+            },
+
+            loadDocentiDisponibili() {
+                const container = document.getElementById('docenti-list');
+                container.innerHTML = '';
+
+                if (!this.data.docenti) {
+                    container.innerHTML = '<div class="no-disponibili"><div class="no-disponibili-icon"><i class="fas fa-user-slash"></i></div><div>Nessun docente disponibile</div></div>';
+                    return;
+                }
+
+                const lesson = this.selectedLesson;
+                const oraInizio = parseInt(lesson.ora_inizio.split(':')[0]);
+                const oraFine = parseInt(lesson.ora_fine.split(':')[0]);
+
+                const docentiDisponibili = this.data.docenti
+                    .map(docente => {
+                        // Verifica se ha disposizioni nell'orario selezionato
+                        const haDisposizione = docente.lezioni.some(lez => 
+                            lez.giorno === this.selectedDay && 
+                            lez.tipo === 'disposizione' &&
+                            parseInt(lez.ora_inizio.split(':')[0]) >= oraInizio &&
+                            parseInt(lez.ora_fine.split(':')[0]) <= oraFine
+                        );
+                        
+                        // Verifica se è occupato
+                        const isOccupato = docente.lezioni.some(lez =>
+                            lez.giorno === this.selectedDay &&
+                            lez.tipo === 'lezione' &&
+                            !(parseInt(lez.ora_fine.split(':')[0]) <= oraInizio || 
+                              parseInt(lez.ora_inizio.split(':')[0]) >= oraFine)
+                        );
+
+                        // Cerca anche nelle classi (escludendo classi assenti)
+                        const isOccupatoInClasse = this.data.classi.some(classe => {
+                            // Se la classe è assente, il docente è liberato
+                            if (this.classiAssenti.includes(classe.nome)) {
+                                return false;
+                            }
+                            
+                            return classe.lezioni.some(lez =>
+                                lez.giorno === this.selectedDay &&
+                                lez.docenti.includes(docente.nome) &&
+                                !(parseInt(lez.ora_fine.split(':')[0]) <= oraInizio || 
+                                  parseInt(lez.ora_inizio.split(':')[0]) >= oraFine)
+                            );
+                        });
+
+                        // Verifica se è liberato da classe assente
+                        // Se una classe è assente, il docente è liberato per TUTTO il giorno
+                        // indipendentemente dall'orario della sostituzione
+                        let isLiberato = false;
+                        let lezioniLiberate = [];
+                        
+                        this.data.classi.forEach(classe => {
+                            if (this.classiAssenti.includes(classe.nome)) {
+                                // Trova tutte le lezioni del docente con questa classe assente
+                                const lezioniConClasseAssente = classe.lezioni.filter(lez =>
+                                    lez.giorno === this.selectedDay &&
+                                    lez.docenti.includes(docente.nome)
+                                );
+                                
+                                if (lezioniConClasseAssente.length > 0) {
+                                    isLiberato = true;
+                                    lezioniConClasseAssente.forEach(lez => {
+                                        lezioniLiberate.push({
+                                            classe: classe.nome,
+                                            ora_inizio: lez.ora_inizio,
+                                            ora_fine: lez.ora_fine
+                                        });
+                                    });
+                                }
+                            }
+                        });
+
+                        return {
+                            nome: docente.nome,
+                            disponibile: haDisposizione,
+                            occupato: isOccupato || isOccupatoInClasse,
+                            liberato: isLiberato,
+                            lezioniLiberate: lezioniLiberate
+                        };
+                    })
+                    .filter(d => d.disponibile || d.liberato || !d.occupato)
+                    .sort((a, b) => {
+                        // Priorità: 1. A disposizione, 2. Liberati, 3. Liberi
+                        if (a.disponibile && !b.disponibile) return -1;
+                        if (!a.disponibile && b.disponibile) return 1;
+                        
+                        if (a.liberato && !b.liberato) return -1;
+                        if (!a.liberato && b.liberato) return 1;
+                        
+                        return a.nome.localeCompare(b.nome);
+                    });
+
+                if (docentiDisponibili.length === 0) {
+                    container.innerHTML = '<div class="no-disponibili"><div class="no-disponibili-icon"><i class="fas fa-user-slash"></i></div><div>Nessun docente disponibile in questo orario</div></div>';
+                    return;
+                }
+
+                docentiDisponibili.forEach(docente => {
+                    const card = document.createElement('div');
+                    const cardClasses = ['docente-card'];
+                    if (docente.disponibile) cardClasses.push('disponibile');
+                    if (docente.liberato) cardClasses.push('liberato');
+                    card.className = cardClasses.join(' ');
+                    card.onclick = () => this.selectDocente(docente.nome, card);
+                    
+                    let badges = '';
+                    if (docente.disponibile) {
+                        badges += '<span class="docente-badge"><i class="fas fa-check"></i> A disposizione</span>';
+                    }
+                    if (docente.liberato) {
+                        badges += '<span class="docente-badge-liberato"><i class="fas fa-bus"></i> Classe assente</span>';
+                    }
+                    
+                    let status = '';
+                    if (docente.disponibile) {
+                        status = 'Disponibile per sostituzioni';
+                    } else if (docente.liberato) {
+                        status = 'Liberato da classe assente';
+                    } else {
+                        status = 'Libero in questo orario';
+                    }
+                    
+                    // Mostra dettagli lezioni liberate
+                    let lezioniInfo = '';
+                    if (docente.liberato && docente.lezioniLiberate && docente.lezioniLiberate.length > 0) {
+                        lezioniInfo = '<div style="font-size: 0.85em; color: #666; margin-top: 5px;">';
+                        docente.lezioniLiberate.forEach(lez => {
+                            lezioniInfo += `<div><i class="fas fa-clock"></i> ${lez.classe}: ${lez.ora_inizio}-${lez.ora_fine}</div>`;
+                        });
+                        lezioniInfo += '</div>';
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="docente-name">
+                            ${docente.nome}
+                            ${badges}
+                        </div>
+                        <div class="docente-status">
+                            ${status}
+                            ${lezioniInfo}
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+            },
+
+            selectDocente(nome, cardElement) {
+                const lesson = this.selectedLesson;
+                const isMultiora = lesson.durata_minuti > 60;
+                
+                if (isMultiora) {
+                    // Selezione multipla per lezioni multiora
+                    const index = this.selectedDocenti.indexOf(nome);
+                    if (index > -1) {
+                        // Deseleziona
+                        this.selectedDocenti.splice(index, 1);
+                        cardElement.classList.remove('selected');
+                    } else {
+                        // Seleziona
+                        this.selectedDocenti.push(nome);
+                        cardElement.classList.add('selected');
+                    }
+                } else {
+                    // Selezione singola per lezioni normali
+                    this.selectedDocenti = [nome];
+                    
+                    // Rimuovi tutte le selezioni
+                    document.querySelectorAll('.docente-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                    
+                    // Aggiungi selezione
+                    cardElement.classList.add('selected');
+                }
+                
+                // Aggiorna contatore
+                this.updateSelectedCount();
+                
+                // Abilita pulsante conferma se almeno un docente selezionato
+                document.getElementById('btn-confirm').disabled = this.selectedDocenti.length === 0;
+            },
+
+            async confirmSubstitution() {
+                if (this.selectedDocenti.length === 0 || !this.selectedLesson) {
+                    return;
+                }
+
+                try {
+                    // Calcola fasce orarie per ogni docente in base all'ordine di selezione
+                    const docentiConOrari = this.calculateTimeSlots(
+                        this.selectedDocenti,
+                        this.selectedLesson.ora_inizio,
+                        this.selectedLesson.ora_fine,
+                        this.selectedLesson.durata_minuti
+                    );
+
+                    // Crea oggetto sostituzione (senza id - Firebase lo genererà)
+                    const substitution = {
+                        classe: this.selectedClass.nome,
+                        aula: this.selectedClass.aula,
+                        data: this.selectedDate,
+                        giorno: this.selectedDay,
+                        ora_inizio: this.selectedLesson.ora_inizio,
+                        ora_fine: this.selectedLesson.ora_fine,
+                        durata_minuti: this.selectedLesson.durata_minuti,
+                        materia: this.selectedLesson.materia,
+                        docenti_assenti: [...this.selectedLesson.docenti],
+                        docenti_sostituti: docentiConOrari,
+                        laboratorio: this.selectedLesson.laboratorio || null
+                    };
+
+                    // Salva sostituzione (attendi completamento)
+                    await this.saveSubstitution(substitution);
+                    
+                    // Mostra card riepilogativa
+                    this.showSummaryCard(substitution);
+                    
+                    // Chiudi modal e passa al tab Visualizza
+                    this.closeModal();
+                    this.switchTab('visualizza');
+                } catch (error) {
+                    console.error('Errore in confirmSubstitution:', error);
+                    alert('Errore durante il salvataggio della sostituzione: ' + error.message);
+                }
+            },
+
+            calculateTimeSlots(docenti, oraInizio, oraFine, durataMinuti) {
+                const numDocenti = docenti.length;
+                
+                if (numDocenti === 1) {
+                    // Un solo docente: tutta la durata
+                    return [{
+                        nome: docenti[0],
+                        ora_inizio: oraInizio,
+                        ora_fine: oraFine
+                    }];
+                }
+                
+                // Più docenti: dividi il tempo equamente
+                const [startH, startM] = oraInizio.split(':').map(Number);
+                const [endH, endM] = oraFine.split(':').map(Number);
+                
+                const startTotalMin = startH * 60 + startM;
+                const endTotalMin = endH * 60 + endM;
+                const totalDuration = endTotalMin - startTotalMin;
+                
+                const slotDuration = Math.floor(totalDuration / numDocenti);
+                
+                return docenti.map((nome, index) => {
+                    const slotStart = startTotalMin + (slotDuration * index);
+                    const slotEnd = index === numDocenti - 1 
+                        ? endTotalMin  // Ultimo docente: fino alla fine
+                        : startTotalMin + (slotDuration * (index + 1));
+                    
+                    const formatTime = (minutes) => {
+                        const h = Math.floor(minutes / 60);
+                        const m = minutes % 60;
+                        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+                    };
+                    
+                    return {
+                        nome: nome,
+                        ora_inizio: formatTime(slotStart),
+                        ora_fine: formatTime(slotEnd)
+                    };
+                });
+            },
+
+            updateSelectedCount() {
+                const count = this.selectedDocenti.length;
+                const countElement = document.getElementById('selected-count');
+                const textElement = document.getElementById('selected-count-text');
+                
+                if (count > 0) {
+                    countElement.style.display = 'block';
+                    textElement.textContent = `${count} docente${count > 1 ? 'i' : ''} selezionato${count > 1 ? 'i' : ''}`;
+                } else {
+                    countElement.style.display = 'none';
+                }
+            },
+
+            async saveSubstitution(substitution) {
+                // Salva solo su Firebase - il listener aggiornerà automaticamente la UI
+                try {
+                    if (typeof FirebaseManager !== 'undefined') {
+                        const firebaseId = await FirebaseManager.saveSostituzione(substitution);
+                        console.log('✅ Sostituzione salvata su Firebase:', firebaseId);
+                        // Il listener onSostituzioniChange aggiornerà this.savedSubstitutions automaticamente
+                    } else {
+                        console.error('❌ FirebaseManager non disponibile');
+                        alert('Errore: Firebase non disponibile. Impossibile salvare la sostituzione.');
+                    }
+                } catch (error) {
+                    console.error('❌ Errore salvataggio Firebase:', error);
+                    alert('Errore durante il salvataggio della sostituzione: ' + error.message);
+                }
+            },
+
+            // loadSavedSubstitutions RIMOSSA - ora usa solo il listener Firebase in tempo reale
+
+            renderSavedSubstitutions() {
+                const container = document.getElementById('saved-list');
+                
+                // Aggiorna badge contatore (se esiste)
+                const badge = document.getElementById('saved-count-badge');
+                if (badge) {
+                    badge.textContent = this.savedSubstitutions.length;
+                }
+                
+                if (this.savedSubstitutions.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px; color: #adb5bd;">
+                            <div style="font-size: 4em; margin-bottom: 15px;">
+                                <i class="fas fa-inbox"></i>
+                            </div>
+                            <div style="font-size: 1.1em; font-weight: 600;">Nessuna sostituzione salvata</div>
+                            <div style="font-size: 0.9em; margin-top: 8px;">Le sostituzioni confermate appariranno qui</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.savedSubstitutions.map(sub => 
+                    this.createSummaryCardHTML(sub, true)
+                ).join('');
+            },
+
+            toggleSavedView() {
+                // Metodo deprecato - ora usiamo i tab
+                // Passa al tab visualizza
+                this.switchTab('visualizza');
+            },
+
+            showSummaryCard(substitution) {
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Mostra notifica successo
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #28a745;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.innerHTML = '<i class="fas fa-check-circle"></i> Sostituzione salvata con successo!';
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            },
+
+            createSummaryCardHTML(sub, withActions = false) {
+                // Log per debug
+                if (!sub.id) {
+                    console.error('⚠️ Sostituzione senza ID:', sub);
+                }
+                
+                const date = new Date(sub.data + 'T12:00:00');
+                const dateStr = date.toLocaleDateString('it-IT', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+                
+                const durata = sub.durata_minuti / 60;
+                const isMultiora = sub.durata_minuti > 60;
+                
+                return `
+                    <div class="summary-card" data-id="${sub.id || 'no-id'}">
+                        <div class="summary-header">
+                            <div class="summary-title">
+                                <i class="fas fa-calendar-check"></i> Sostituzione Confermata
+                            </div>
+                            <div class="summary-subtitle">${dateStr}</div>
+                        </div>
+                        
+                        <div class="summary-section">
+                            <div class="summary-section-title">
+                                <i class="fas fa-info-circle"></i> Dettagli Lezione
+                            </div>
+                            <div class="summary-info-grid">
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Classe</div>
+                                    <div class="summary-info-value">${sub.classe}</div>
+                                </div>
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Aula</div>
+                                    <div class="summary-info-value">${sub.aula}</div>
+                                </div>
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Orario</div>
+                                    <div class="summary-info-value">${sub.ora_inizio} - ${sub.ora_fine}</div>
+                                </div>
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Durata</div>
+                                    <div class="summary-info-value">${durata}h${isMultiora ? ' (multiora)' : ''}</div>
+                                </div>
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Materia</div>
+                                    <div class="summary-info-value">${sub.materia}</div>
+                                </div>
+                                ${sub.laboratorio ? `
+                                <div class="summary-info-item">
+                                    <div class="summary-info-label">Laboratorio</div>
+                                    <div class="summary-info-value">${sub.laboratorio}</div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="summary-section">
+                            <div class="summary-section-title">
+                                <i class="fas fa-user-times"></i> Docente/i Assente/i
+                            </div>
+                            <div class="summary-docenti-list">
+                                ${sub.docenti_assenti.map(doc => `
+                                    <div class="summary-docente-item">
+                                        <div class="summary-docente-icon">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <div>${doc}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="summary-section">
+                            <div class="summary-section-title">
+                                <i class="fas fa-user-check"></i> Docente/i Sostituto/i
+                            </div>
+                            <div class="summary-docenti-list">
+                                ${sub.docenti_sostituti.map((doc, index) => {
+                                    const hasTimeSlot = doc.ora_inizio && doc.ora_fine;
+                                    return `
+                                        <div class="summary-docente-item">
+                                            <div class="summary-docente-icon">
+                                                ${index + 1}
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <div style="font-weight: 600;">${hasTimeSlot ? doc.nome : doc}</div>
+                                                ${hasTimeSlot ? `
+                                                    <div style="font-size: 0.85em; color: #666; margin-top: 4px;">
+                                                        <i class="fas fa-clock"></i> ${doc.ora_inizio} - ${doc.ora_fine}
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        ${withActions ? `
+                        <div class="summary-actions">
+                            <button class="btn btn-share" onclick="app.shareSubstitution('${sub.id}')">
+                                <i class="fas fa-share-alt"></i> Condividi
+                            </button>
+                            <button class="btn btn-cancel" onclick="app.deleteSubstitution('${sub.id}')">
+                                <i class="fas fa-trash"></i> Elimina
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            },
+
+            shareSubstitution(id) {
+                const sub = this.savedSubstitutions.find(s => s.id === id);
+                if (!sub) return;
+                
+                const date = new Date(sub.data + 'T12:00:00');
+                const dateStr = date.toLocaleDateString('it-IT');
+                
+                // Formatta docenti sostituti con orari
+                const docentiSostitutiText = sub.docenti_sostituti.map((doc, index) => {
+                    const hasTimeSlot = doc.ora_inizio && doc.ora_fine;
+                    if (hasTimeSlot) {
+                        return `  ${index + 1}. ${doc.nome} (${doc.ora_inizio}-${doc.ora_fine})`;
+                    }
+                    return `  • ${doc}`;
+                }).join('\n');
+                
+                const text = `
+📅 SOSTITUZIONE DOCENTE
+
+Data: ${dateStr} (${sub.giorno})
+Classe: ${sub.classe} - Aula ${sub.aula}
+Orario: ${sub.ora_inizio} - ${sub.ora_fine} (${sub.durata_minuti / 60}h)
+Materia: ${sub.materia}
+${sub.laboratorio ? `Laboratorio: ${sub.laboratorio}\n` : ''}
+Docente/i assente/i:
+${sub.docenti_assenti.map(d => `  • ${d}`).join('\n')}
+
+Docente/i sostituto/i:
+${docentiSostitutiText}
+
+✅ Sostituzione confermata
+                `.trim();
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'Sostituzione Docente',
+                        text: text
+                    }).catch(err => console.log('Condivisione annullata'));
+                } else {
+                    // Fallback: copia negli appunti
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert('Testo copiato negli appunti!');
+                    }).catch(err => {
+                        // Fallback: mostra in alert
+                        alert(text);
+                    });
+                }
+            },
+
+            async deleteSubstitution(id) {
+                console.log('🗑️ deleteSubstitution chiamata con id:', id, 'tipo:', typeof id);
+                console.log('📋 Sostituzioni salvate:', this.savedSubstitutions.map(s => s.id));
+                
+                if (!id || id === 'undefined' || id === 'no-id') {
+                    console.error('❌ ID non valido:', id);
+                    alert('Errore: ID sostituzione non valido');
+                    return;
+                }
+                
+                if (!confirm('Sei sicuro di voler eliminare questa sostituzione?')) {
+                    return;
+                }
+                
+                console.log('🗑️ Procedendo con eliminazione id:', id);
+                
+                // Elimina da Firebase
+                if (typeof FirebaseManager !== 'undefined') {
+                    try {
+                        // L'id passato è già il Firebase key (childSnapshot.key dal listener)
+                        await FirebaseManager.deleteSostituzione(id);
+                        console.log('✅ Sostituzione eliminata da Firebase:', id);
+                        
+                        // Mostra notifica
+                        const notification = document.createElement('div');
+                        notification.style.cssText = `
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: #dc3545;
+                            color: white;
+                            padding: 15px 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                            z-index: 10000;
+                        `;
+                        notification.innerHTML = '<i class="fas fa-trash"></i> Sostituzione eliminata';
+                        document.body.appendChild(notification);
+                        
+                        setTimeout(() => {
+                            notification.remove();
+                        }, 2000);
+                        
+                        // Il listener Firebase aggiornerà automaticamente la lista
+                    } catch (error) {
+                        console.error('❌ Errore eliminazione da Firebase:', error);
+                        alert('Errore durante l\'eliminazione della sostituzione');
+                    }
+                } else {
+                    console.error('❌ FirebaseManager non disponibile');
+                    alert('Impossibile eliminare: Firebase non disponibile');
+                }
+            },
+
+            searchSubstitutions() {
+                const searchInput = document.getElementById('search-input');
+                const clearBtn = document.getElementById('clear-search');
+                const query = searchInput.value.toLowerCase().trim();
+                
+                // Mostra/nascondi pulsante clear
+                clearBtn.style.display = query ? 'block' : 'none';
+                
+                if (!query) {
+                    this.renderSavedSubstitutions();
+                    return;
+                }
+                
+                // Filtra sostituzioni
+                const filtered = this.savedSubstitutions.filter(sub => {
+                    const searchText = [
+                        sub.classe,
+                        sub.aula,
+                        sub.giorno,
+                        sub.materia,
+                        sub.laboratorio || '',
+                        ...sub.docenti_assenti,
+                        ...sub.docenti_sostituti.map(d => d.nome || d),
+                        new Date(sub.data + 'T12:00:00').toLocaleDateString('it-IT')
+                    ].join(' ').toLowerCase();
+                    
+                    return searchText.includes(query);
+                });
+                
+                this.renderFilteredSubstitutions(filtered, `Risultati per "${searchInput.value}"`);
+            },
+
+            clearSearch() {
+                const searchInput = document.getElementById('search-input');
+                const clearBtn = document.getElementById('clear-search');
+                
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                
+                this.renderSavedSubstitutions();
+            },
+
+            filterByDate(filter) {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                let filtered;
+                let title;
+                
+                if (filter === 'today') {
+                    const todayStr = today.toISOString().split('T')[0];
+                    filtered = this.savedSubstitutions.filter(sub => sub.data === todayStr);
+                    title = 'Sostituzioni di oggi';
+                } else if (filter === 'week') {
+                    const weekStart = new Date(today);
+                    weekStart.setDate(today.getDate() - today.getDay() + 1); // Lunedì
+                    const weekEnd = new Date(weekStart);
+                    weekEnd.setDate(weekStart.getDate() + 4); // Venerdì
+                    
+                    filtered = this.savedSubstitutions.filter(sub => {
+                        const subDate = new Date(sub.data + 'T12:00:00');
+                        return subDate >= weekStart && subDate <= weekEnd;
+                    });
+                    title = 'Sostituzioni di questa settimana';
+                } else {
+                    this.renderSavedSubstitutions();
+                    return;
+                }
+                
+                this.renderFilteredSubstitutions(filtered, title);
+            },
+
+            renderFilteredSubstitutions(filtered, title) {
+                const container = document.getElementById('saved-list');
+                
+                if (filtered.length === 0) {
+                    container.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <div style="font-size: 1.1em; font-weight: 600;">Nessun risultato</div>
+                            <div style="font-size: 0.9em; margin-top: 8px;">Prova con altri termini di ricerca</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const header = title ? `
+                    <div style="font-size: 1.1em; font-weight: 600; color: #333; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e9ecef;">
+                        ${title} (${filtered.length})
+                    </div>
+                ` : '';
+                
+                container.innerHTML = header + filtered.map(sub => 
+                    this.createSummaryCardHTML(sub, true)
+                ).join('');
+            },
+
+            showPublishDialog() {
+                // Imposta data di oggi
+                const oggi = new Date().toISOString().split('T')[0];
+                document.getElementById('publish-date').value = oggi;
+                
+                // Mostra anteprima iniziale
+                this.updatePublishPreview();
+                
+                // Mostra modal
+                document.getElementById('modal-publish').classList.add('active');
+                
+                // Listener per cambio data
+                document.getElementById('publish-date').addEventListener('change', () => {
+                    this.updatePublishPreview();
+                });
+            },
+
+            closePublishModal() {
+                document.getElementById('modal-publish').classList.remove('active');
+                document.getElementById('publish-preview').style.display = 'none';
+            },
+
+            updatePublishPreview() {
+                const date = document.getElementById('publish-date').value;
+                if (!date) {
+                    document.getElementById('btn-publish').disabled = true;
+                    document.getElementById('publish-preview').style.display = 'none';
+                    return;
+                }
+
+                const sostituzioniData = this.savedSubstitutions.filter(s => s.data === date);
+                
+                if (sostituzioniData.length === 0) {
+                    document.getElementById('publish-preview-content').textContent = 
+                        'Nessuna sostituzione trovata per questa data.';
+                    document.getElementById('publish-preview').style.display = 'block';
+                    document.getElementById('btn-publish').disabled = true;
+                    return;
+                }
+
+                // Genera anteprima
+                const text = this.formatSubstitutionsForDate(date, sostituzioniData);
+                document.getElementById('publish-preview-content').textContent = text;
+                document.getElementById('publish-preview').style.display = 'block';
+                document.getElementById('btn-publish').disabled = false;
+            },
+
+            formatSubstitutionsForDate(date, sostituzioni) {
+                const dateObj = new Date(date + 'T12:00:00');
+                const dateStr = dateObj.toLocaleDateString('it-IT', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                let text = `📅 SOSTITUZIONI DEL ${dateStr.toUpperCase()}\n`;
+                text += `═══════════════════════════════════\n\n`;
+                text += `Totale sostituzioni: ${sostituzioni.length}\n\n`;
+
+                // Ordina per ora
+                const sostituzioniOrdinate = sostituzioni.sort((a, b) => 
+                    a.ora_inizio.localeCompare(b.ora_inizio)
+                );
+
+                sostituzioniOrdinate.forEach((sub, index) => {
+                    text += `${index + 1}. ───────────────────────\n`;
+                    text += `   🕐 Orario: ${sub.ora_inizio} - ${sub.ora_fine}\n`;
+                    text += `   🎓 Classe: ${sub.classe} (Aula ${sub.aula})\n`;
+                    text += `   📚 Materia: ${sub.materia}\n`;
+                    
+                    if (sub.laboratorio) {
+                        text += `   🧪 Laboratorio: ${sub.laboratorio}\n`;
+                    }
+                    
+                    text += `   ❌ Assente/i: ${sub.docenti_assenti.join(', ')}\n`;
+                    
+                    // Docenti sostituti con orari
+                    text += `   ✅ Sostituto/i:\n`;
+                    sub.docenti_sostituti.forEach((doc, i) => {
+                        const hasTimeSlot = doc.ora_inizio && doc.ora_fine;
+                        if (hasTimeSlot) {
+                            text += `      ${i + 1}) ${doc.nome} (${doc.ora_inizio}-${doc.ora_fine})\n`;
+                        } else {
+                            text += `      ${i + 1}) ${doc}\n`;
+                        }
+                    });
+                    text += `\n`;
+                });
+
+                text += `═══════════════════════════════════\n`;
+                text += `ITI "Augusto Righi" - Napoli`;
+
+                return text;
+            },
+
+            publishByDate() {
+                const date = document.getElementById('publish-date').value;
+                if (!date) return;
+
+                const sostituzioniData = this.savedSubstitutions.filter(s => s.data === date);
+                if (sostituzioniData.length === 0) return;
+
+                const text = this.formatSubstitutionsForDate(date, sostituzioniData);
+
+                // Usa Web Share API se disponibile
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Sostituzioni ${date}`,
+                        text: text
+                    }).then(() => {
+                        this.closePublishModal();
+                        this.showNotification('Sostituzioni pubblicate!', 'success');
+                    }).catch(err => {
+                        if (err.name !== 'AbortError') {
+                            console.error('Errore condivisione:', err);
+                        }
+                    });
+                } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                    // Fallback: copia negli appunti
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.closePublishModal();
+                        this.showNotification('Sostituzioni copiate negli appunti!', 'success');
+                    }).catch(err => {
+                        console.error('Errore clipboard:', err);
+                        alert(text);
+                    });
+                } else {
+                    // Ultimo fallback: mostra in alert
+                    alert(text);
+                    this.closePublishModal();
+                }
+            },
+
+            showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${bgColor};
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle"></i> ${message}`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.remove();
+                }, 3000);
+            }
+        };
+
+        // Inizializza app
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
