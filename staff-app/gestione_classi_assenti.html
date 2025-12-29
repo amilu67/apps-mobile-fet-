@@ -263,6 +263,7 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="firebase-config.js"></script>
 
@@ -272,6 +273,20 @@
         let currentDate = null;
 
         async function init() {
+            // IMPORTANTE: Aspetta che l'autenticazione sia pronta
+            await new Promise(resolve => {
+                firebase.auth().onAuthStateChanged(user => {
+                    if (user) {
+                        console.log('✅ Auth pronta in iframe:', user.email);
+                        resolve();
+                    } else {
+                        console.error('❌ NON autenticato in iframe!');
+                        alert('Sessione scaduta. Ricarica la pagina e fai login.');
+                        resolve(); // Continua comunque per permettere lettura
+                    }
+                });
+            });
+            
             // Carica orario
             try {
                 orario = await FirebaseManager.loadOrario();

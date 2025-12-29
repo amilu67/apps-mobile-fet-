@@ -19,16 +19,19 @@ App gestionale per il personale amministrativo e docenti.
 
 **Funzionalità:**
 - Tutte le funzionalità dell'app studenti
-- **Gestione sostituzioni docenti**
-- **Ricerca docenti disponibili per ora**
+- **Autenticazione Firebase** (Email/Password)
+- **Gestione sostituzioni docenti** con selezione intelligente
+- **Ricerca docenti disponibili** (a disposizione, liberati da classi assenti)
 - **Gestione classi assenti**
 - Pubblicazione sostituzioni via WhatsApp/Telegram
-- Sincronizzazione in tempo reale con Firebase
+- **Sincronizzazione in tempo reale** con Firebase
+- **Header dinamici** con nome istituto da database
 
 ### 3. **Converter App** - Convertitore FET
 Tool per convertire i file FET in formato JSON e caricarli su Firebase.
 
 **Funzionalità:**
+- **Autenticazione Firebase** (Email/Password)
 - Importazione file FET (.fet)
 - Importazione soluzione oraria (XML)
 - Configurazione nome istituto e anno scolastico
@@ -49,7 +52,9 @@ Tool per convertire i file FET in formato JSON e caricarli su Firebase.
    - Vai su [Firebase Console](https://console.firebase.google.com/)
    - Crea un nuovo progetto
    - Abilita **Realtime Database**
-   - Imposta le regole del database (vedi `FIREBASE_SETUP.html`)
+   - Abilita **Firebase Authentication** (Email/Password)
+   - Crea utenti per staff e amministratori
+   - Imposta le regole del database (vedi `FIREBASE_SECURITY.md`)
 
 2. **Crea 3 siti Hosting Firebase:**
    ```bash
@@ -62,15 +67,21 @@ Tool per convertire i file FET in formato JSON e caricarli su Firebase.
 
    Per ogni app (student-app, staff-app, converter-app):
    
-   a. Copia il file template:
-   ```bash
-   cp firebase-config.js.template firebase-config.js
-   cp .firebaserc.template .firebaserc
+   a. Modifica `firebase-config.js` con le tue credenziali Firebase:
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "YOUR_API_KEY",
+     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+     databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.YOUR_REGION.firebasedatabase.app",
+     projectId: "YOUR_PROJECT_ID",
+     storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+     messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+     appId: "YOUR_APP_ID",
+     measurementId: "YOUR_MEASUREMENT_ID"
+   };
    ```
    
-   b. Modifica `firebase-config.js` con le tue credenziali Firebase
-   
-   c. Modifica `.firebaserc` con il nome del tuo progetto e siti hosting
+   b. Crea `firebase.json` e `.firebaserc` per il deploy (vedi `FIREBASE_SETUP.html`)
 
 ### Deploy
 
@@ -104,8 +115,9 @@ firebase deploy --only hosting
 4. Clicca "Converti e Carica su Firebase"
 
 ### 2. Accedi alle App
-- **Studenti**: possono consultare orari e sostituzioni
-- **Staff**: possono gestire sostituzioni e classi assenti
+- **Studenti**: possono consultare orari e sostituzioni (accesso libero)
+- **Staff**: login richiesto per gestire sostituzioni e classi assenti
+- **Converter**: login richiesto per caricare orari su Firebase
 
 ### 3. Installazione su Smartphone
 Le app sono PWA installabili:
@@ -121,52 +133,60 @@ Imposta queste regole nel Realtime Database:
   "rules": {
     "orario": {
       ".read": true,
-      ".write": false
+      ".write": "auth != null"
     },
     "sostituzioni": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null"
     },
     "classi_assenti": {
       ".read": true,
-      ".write": true
+      ".write": "auth != null"
     }
   }
 }
 ```
 
+**Nota**: Le scritture richiedono autenticazione (`auth != null`). Solo gli utenti autenticati possono modificare i dati.
+
 ### Best Practices
-- Non committare mai `firebase-config.js` o `.firebaserc` con credenziali reali
-- Usa file `.template` per il versioning
-- Considera l'aggiunta di autenticazione Firebase per l'app staff
-- Limita le operazioni di scrittura solo agli utenti autorizzati
+- **Non committare mai credenziali Firebase reali** su repository pubblici
+- Usa i placeholder `YOUR_*` nei file di configurazione su GitHub
+- **Crea utenti staff** in Firebase Authentication prima del primo utilizzo
+- **Limita le operazioni di scrittura** solo agli utenti autenticati (regole database)
+- **Monitora l'utilizzo** del database per prevenire abusi
+- **Backup regolari** dei dati (sostituzioni, classi assenti)
 
 ## 📁 Struttura Progetto
 
 ```
 apps-mobile-fet/
-├── student-app/          # App studenti
+├── student-app/          # App studenti (accesso pubblico)
 │   ├── index.html
 │   ├── app_ricerca_classi.html
 │   ├── app_sostituzioni_studenti.html
-│   ├── firebase-config.js.template
-│   └── .firebaserc.template
-├── staff-app/            # App staff
+│   ├── firebase-config.js     # Con placeholder YOUR_*
+│   └── manifest.json
+├── staff-app/            # App staff (richiede login)
 │   ├── index.html
+│   ├── login.html             # Pagina di login
 │   ├── app_ricerca_classi.html
 │   ├── app_sostituzioni_v3.html
 │   ├── gestione_classi_assenti.html
-│   ├── firebase-config.js.template
-│   └── .firebaserc.template
-├── converter-app/        # Convertitore FET
+│   ├── firebase-config.js     # Con placeholder YOUR_* + AuthManager
+│   └── manifest.json
+├── converter-app/        # Convertitore FET (richiede login)
 │   ├── index.html
+│   ├── login.html             # Pagina di login
 │   ├── converter.js
 │   ├── fet-parser.js
-│   ├── firebase-config.js.template
-│   └── .firebaserc.template
+│   ├── firebase-config.js     # Con placeholder YOUR_* + AuthManager
+│   └── manifest.json
 ├── README.md             # Questo file
 ├── MANUALE.html          # Manuale utente completo
-└── FIREBASE_SETUP.html   # Guida setup Firebase
+├── FIREBASE_SETUP.html   # Guida setup Firebase
+├── FIREBASE_SECURITY.md  # Guida sicurezza e regole database
+└── PRESENTATION_LETTER.md # Lettera di presentazione progetto
 ```
 
 ## 🛠️ Tecnologie Utilizzate

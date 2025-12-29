@@ -381,8 +381,31 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="./firebase-config.js"></script>
+    
+    <script>
+        // Check authentication on page load
+        let authChecked = false;
+        
+        AuthManager.onAuthStateChanged(user => {
+            if (!authChecked) {
+                authChecked = true;
+                
+                if (!user) {
+                    // Not logged in - redirect to login
+                    console.log('❌ Utente non autenticato, redirect a login...');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 100);
+                } else {
+                    console.log('✅ Utente autenticato (Converter):', user.email);
+                }
+            }
+        });
+    </script>
+    
     <script type="module" src="./converter.js"></script>
 </body>
 </html>

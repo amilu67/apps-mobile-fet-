@@ -753,27 +753,35 @@
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
     
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "",
-            authDomain: "",
-            databaseURL: "",
-            projectId: "",
-            storageBucket: "",
-            messagingSenderId: "",
-            appId: ""
-        };
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // Check authentication on page load
+        let authChecked = false;
+        
+        AuthManager.onAuthStateChanged(user => {
+            if (!authChecked) {
+                authChecked = true;
+                
+                if (!user) {
+                    // Not logged in - redirect to login
+                    console.log('❌ Utente non autenticato, redirect a login...');
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 100);
+                } else {
+                    console.log('✅ Utente autenticato:', user.email);
+                    // Load header after auth confirmed
+                    loadHeader();
+                }
+            }
+        });
 
         // Load and update header
         function loadHeader() {
-            database.ref('orario').once('value')
+            firebase.database().ref('orario').once('value')
                 .then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
@@ -792,9 +800,6 @@
                     console.error('Errore caricamento header:', error);
                 });
         }
-
-        // Load header on page load
-        window.addEventListener('load', loadHeader);
 
         const appManager = {
             currentView: 'main-menu',

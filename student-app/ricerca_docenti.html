@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricerca Docenti - ITI Righi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+        .container { padding: 20px; }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            margin: -20px -20px 20px -20px;
+        }
+        .header h1 { font-size: 1.3em; margin-bottom: 5px; }
+        .header p { font-size: 0.9em; opacity: 0.9; }
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .search-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .search-box label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .search-box select, .search-box input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .search-box select:focus, .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .search-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+        }
+        .docente-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .docente-name {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .badge-disposizione {
+            background: #667eea;
+            color: white;
+        }
+        .badge-liberato {
+            background: #ffc107;
+            color: #000;
+        }
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #adb5bd;
+        }
+        .empty-state i {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-user-check"></i> Ricerca Docenti</h1>
+            <p>Docenti a disposizione o liberati</p>
+            <button class="back-btn" onclick="window.location.href='app_sostituzioni_studenti.html'">
+                <i class="fas fa-arrow-left"></i> Torna alle sostituzioni
+            </button>
+        </div>
+
+        <div class="search-box">
+            <label>Giorno della settimana</label>
+            <select id="giorno-select">
+                <option value="">Seleziona un giorno...</option>
+                <option value="Lunedì">Lunedì</option>
+                <option value="Martedì">Martedì</option>
+                <option value="Mercoledì">Mercoledì</option>
+                <option value="Giovedì">Giovedì</option>
+                <option value="Venerdì">Venerdì</option>
+            </select>
+
+            <label>Fascia oraria</label>
+            <select id="ora-select">
+                <option value="">Seleziona un'ora...</option>
+                <option value="08:00">08:00 - 09:00</option>
+                <option value="09:00">09:00 - 10:00</option>
+                <option value="10:00">10:00 - 11:00</option>
+                <option value="11:00">11:00 - 12:00</option>
+                <option value="12:00">12:00 - 13:00</option>
+                <option value="13:00">13:00 - 14:00</option>
+            </select>
+
+            <label>Data (per classi assenti)</label>
+            <input type="date" id="data-select">
+
+            <button class="search-btn" onclick="cercaDocenti()">
+                <i class="fas fa-search"></i> Cerca docenti disponibili
+            </button>
+        </div>
+
+        <div id="risultati"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="firebase-config.js"></script>
+
+    <script>
+        let orario = null;
+        let classiAssentiPerData = [];
+
+        async function init() {
+            // Carica orario
+            try {
+                orario = await FirebaseManager.loadOrario();
+                console.log('Orario caricato:', orario.docenti.length, 'docenti');
+            } catch (error) {
+                console.error('Errore caricamento orario:', error);
+            }
+
+            // Carica classi assenti da Firebase
+            if (typeof FirebaseManager !== 'undefined') {
+                FirebaseManager.onAllClassiAssentiChange((data) => {
+                    classiAssentiPerData = data;
+                    console.log('Classi assenti caricate:', data.length);
+                });
+            }
+
+            // Imposta data di oggi
+            const oggi = new Date();
+            const yyyy = oggi.getFullYear();
+            const mm = String(oggi.getMonth() + 1).padStart(2, '0');
+            const dd = String(oggi.getDate()).padStart(2, '0');
+            document.getElementById('data-select').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function cercaDocenti() {
+            const giorno = document.getElementById('giorno-select').value;
+            const oraInizio = document.getElementById('ora-select').value;
+            const data = document.getElementById('data-select').value;
+
+            if (!giorno || !oraInizio) {
+                alert('Seleziona giorno e fascia oraria');
+                return;
+            }
+
+            if (!orario || !orario.docenti) {
+                alert('Orario non ancora caricato');
+                return;
+            }
+
+            // Calcola ora fine (1 ora dopo)
+            const [h, m] = oraInizio.split(':').map(Number);
+            const oraFine = `${(h + 1).toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+
+            // Trova classi assenti per questa data
+            const classiAssenti = data ? 
+                (classiAssentiPerData.find(item => item.date === data)?.classi || []) : 
+                [];
+
+            console.log('Cerco docenti per:', giorno, oraInizio, '-', oraFine);
+            console.log('Classi assenti:', classiAssenti);
+
+            const docentiDisponibili = orario.docenti
+                .map(docente => {
+                    // Verifica se ha disposizioni in questo orario
+                    const haDisposizione = docente.lezioni.some(lez => 
+                        lez.giorno === giorno && 
+                        lez.tipo === 'disposizione' &&
+                        lez.ora_inizio === oraInizio
+                    );
+
+                    // Verifica se è occupato
+                    const isOccupato = docente.lezioni.some(lez =>
+                        lez.giorno === giorno &&
+                        lez.tipo === 'lezione' &&
+                        lez.ora_inizio === oraInizio
+                    );
+
+                    // Verifica se è liberato da classe assente
+                    let isLiberato = false;
+                    let classeLiberata = null;
+                    if (classiAssenti.length > 0) {
+                        for (const classe of classiAssenti) {
+                            const lezione = orario.classi
+                                .find(c => c.nome === classe)
+                                ?.lezioni.find(lez =>
+                                    lez.giorno === giorno &&
+                                    lez.ora_inizio === oraInizio &&
+                                    lez.docenti.includes(docente.nome)
+                                );
+                            if (lezione) {
+                                isLiberato = true;
+                                classeLiberata = classe;
+                                break;
+                            }
+                        }
+                    }
+
+                    return {
+                        nome: docente.nome,
+                        disponibile: haDisposizione,
+                        liberato: isLiberato,
+                        classeLiberata: classeLiberata,
+                        occupato: isOccupato && !isLiberato
+                    };
+                })
+                .filter(d => d.disponibile || d.liberato)
+                .sort((a, b) => {
+                    if (a.disponibile && !b.disponibile) return -1;
+                    if (!a.disponibile && b.disponibile) return 1;
+                    return a.nome.localeCompare(b.nome);
+                });
+
+            renderRisultati(docentiDisponibili, giorno, oraInizio, oraFine);
+        }
+
+        function renderRisultati(docenti, giorno, oraInizio, oraFine) {
+            const container = document.getElementById('risultati');
+
+            if (docenti.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <p style="font-weight: 600; margin-top: 15px;">Nessun docente disponibile</p>
+                        <p style="font-size: 0.9em; margin-top: 5px;">Non ci sono docenti a disposizione o liberati in questo orario</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = docenti.map(d => {
+                let badges = '';
+                if (d.disponibile) {
+                    badges += '<span class="badge badge-disposizione"><i class="fas fa-check"></i> A disposizione</span>';
+                }
+                if (d.liberato) {
+                    badges += '<span class="badge badge-liberato"><i class="fas fa-bus"></i> Classe assente</span>';
+                }
+
+                let info = `<div class="info-row"><i class="fas fa-clock"></i> ${giorno}, ${oraInizio} - ${oraFine}</div>`;
+                if (d.classeLiberata) {
+                    info += `<div class="info-row"><i class="fas fa-graduation-cap"></i> Liberato da classe ${d.classeLiberata}</div>`;
+                }
+
+                return `
+                    <div class="docente-card">
+                        <div class="docente-name">${d.nome}</div>
+                        ${badges}
+                        ${info}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

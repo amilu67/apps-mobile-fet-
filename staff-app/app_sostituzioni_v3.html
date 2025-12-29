@@ -938,6 +938,7 @@
 
     <!-- Firebase SDK - MUST load before app script -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <!-- Firebase Configuration -->
     <script src="firebase-config.js"></script>
@@ -979,6 +980,20 @@
 
             async init() {
                 try {
+                    // IMPORTANTE: Aspetta che l'autenticazione sia pronta
+                    await new Promise(resolve => {
+                        firebase.auth().onAuthStateChanged(user => {
+                            if (user) {
+                                console.log('✅ Auth pronta in iframe:', user.email);
+                                resolve();
+                            } else {
+                                console.error('❌ NON autenticato in iframe!');
+                                alert('Sessione scaduta. Ricarica la pagina e fai login.');
+                                resolve(); // Continua comunque per permettere lettura
+                            }
+                        });
+                    });
+                    
                     // Load dynamic header
                     this.loadHeader();
                     
@@ -1359,7 +1374,8 @@
             },
 
             selectLesson(lesson) {
-                this.selectedLesson = lesson;
+                // IMPORTANTE: Crea una copia profonda della lezione per evitare modifiche all'orario originale
+                this.selectedLesson = JSON.parse(JSON.stringify(lesson));
                 this.selectedDocenti = []; // Reset selezione multipla
 
                 // Evidenzia lezione selezionata
@@ -1601,6 +1617,11 @@
                         this.selectedLesson.durata_minuti
                     );
 
+                    // DEBUG: Verifica docenti assenti e sostituti
+                    console.log('🔍 Docenti assenti (dalla lezione):', this.selectedLesson.docenti);
+                    console.log('🔍 Docenti sostituti (selezionati):', this.selectedDocenti);
+                    console.log('🔍 Docenti sostituti con orari:', docentiConOrari);
+
                     // Crea oggetto sostituzione (senza id - Firebase lo genererà)
                     const substitution = {
                         classe: this.selectedClass.nome,
@@ -1617,6 +1638,7 @@
                     };
 
                     // Salva sostituzione (attendi completamento)
+                    // L'optimistic update dentro saveSubstitution() aggiorna immediatamente l'UI
                     await this.saveSubstitution(substitution);
                     
                     // Mostra card riepilogativa
@@ -1687,7 +1709,7 @@
             },
 
             async saveSubstitution(substitution) {
-                // Salva solo su Firebase - il listener aggiornerà automaticamente la UI
+                // Salva su Firebase - il listener aggiornerà automaticamente la UI
                 try {
                     if (typeof FirebaseManager !== 'undefined') {
                         const firebaseId = await FirebaseManager.saveSostituzione(substitution);
@@ -2173,7 +2195,13 @@ ${docentiSostitutiText}
                 });
 
                 text += `═══════════════════════════════════\n`;
-                text += `ITI "Augusto Righi" - Napoli`;
+                // Usa istituto dinamico da Firebase, con fallback
+                const istituto = this.data?.istituto || 'Istituto';
+                const annoScolastico = this.data?.anno_scolastico || '';
+                text += `${istituto}`;
+                if (annoScolastico) {
+                    text += ` - ${annoScolastico}`;
+                }
 
                 return text;
             },
