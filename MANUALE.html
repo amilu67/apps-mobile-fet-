@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manuale Apps Mobile FET</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #764ba2;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        p { margin-bottom: 15px; }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        li { margin-bottom: 10px; }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .step-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Manuale Apps Mobile FET</h1>
+        <p><strong>Versione 1.0</strong> - Sistema completo per la gestione e visualizzazione degli orari scolastici</p>
+
+        <h2>📋 Indice</h2>
+        <ol>
+            <li><a href="#introduzione">Introduzione</a></li>
+            <li><a href="#converter">Converter App - Convertitore FET</a></li>
+            <li><a href="#student">Student App - App Studenti</a></li>
+            <li><a href="#staff">Staff App - App Personale</a></li>
+            <li><a href="#tips">Consigli e Best Practices</a></li>
+            <li><a href="#troubleshooting">Risoluzione Problemi</a></li>
+        </ol>
+
+        <h2 id="introduzione">1. Introduzione</h2>
+        <p>
+            Apps Mobile FET è un sistema completo di 3 applicazioni web progressive (PWA) che permette di:
+        </p>
+        <ul>
+            <li>Convertire gli orari generati da FET in formato utilizzabile dalle app</li>
+            <li>Consultare orari e sostituzioni (app studenti)</li>
+            <li>Gestire sostituzioni e classi assenti (app staff)</li>
+        </ul>
+
+        <div class="info">
+            <strong>💡 Nota:</strong> Tutte le app funzionano anche offline dopo la prima visita e possono essere installate come app native su smartphone.
+        </div>
+
+        <h2 id="converter">2. Converter App - Convertitore FET</h2>
+        <p>Questa app permette di convertire i file FET e caricarli su Firebase per renderli disponibili alle altre app.</p>
+
+        <h3>2.1 Preparazione Files FET</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Genera l'orario in FET</strong>
+            <p>Completa la generazione dell'orario in FET e assicurati che sia corretto.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Esporta la soluzione XML</strong>
+            <p>In FET: <code>File > Export > Simple XML...</code></p>
+            <p>Salva il file con nome descrittivo (es: <code>orario_soluzione_2024.xml</code>)</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Salva il file FET</strong>
+            <p>Salva il file .fet del tuo orario (es: <code>orario_2024.fet</code>)</p>
+        </div>
+
+        <h3>2.2 Utilizzo del Converter</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Accedi alla Converter App</strong>
+            <p>Apri l'URL della tua converter app nel browser.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Carica il file FET</strong>
+            <p>Clicca su "Scegli file FET" e seleziona il tuo file .fet</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Carica la soluzione XML</strong>
+            <p>Clicca su "Scegli file soluzione XML" e seleziona il file XML esportato</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Configura i dati</strong>
+            <ul>
+                <li><strong>Nome Istituzione:</strong> Es: "ITI Augusto Righi"</li>
+                <li><strong>Anno Scolastico:</strong> Es: "2024/2025"</li>
+                <li><strong>Materie Disponibilità:</strong> Es: "D, Disp" (separa con virgola se hai più codici)</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Converti e Carica</strong>
+            <p>Clicca su "Converti e Carica su Firebase". Attendi il completamento dell'upload.</p>
+        </div>
+
+        <div class="note">
+            <strong>📊 Statistiche:</strong> Dopo la conversione vedrai statistiche dettagliate: numero di classi, docenti, materie, aule e lezioni totali.
+        </div>
+
+        <h2 id="student">3. Student App - App Studenti</h2>
+        <p>App per studenti e famiglie per consultare orari e sostituzioni.</p>
+
+        <h3>3.1 Menu Principale</h3>
+        <p>L'app ha due sezioni principali:</p>
+        <ul>
+            <li><strong>Sostituzioni:</strong> Visualizza le sostituzioni del giorno e future</li>
+            <li><strong>Classi:</strong> Cerca orari di classi e docenti</li>
+        </ul>
+
+        <h3>3.2 Sezione Sostituzioni</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Filtra per periodo</strong>
+            <ul>
+                <li><strong>Oggi:</strong> Solo sostituzioni odierne</li>
+                <li><strong>Questa settimana:</strong> Sostituzioni della settimana corrente</li>
+                <li><strong>Tutte:</strong> Tutte le sostituzioni presenti</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Leggi i dettagli</strong>
+            <p>Ogni card mostra:</p>
+            <ul>
+                <li>Data e ora della sostituzione</li>
+                <li>Classe interessata</li>
+                <li>Docente assente</li>
+                <li>Docente sostituto</li>
+                <li>Materia</li>
+                <li>Aula</li>
+            </ul>
+        </div>
+
+        <div class="info">
+            <strong>🔄 Aggiornamento Automatico:</strong> L'app si aggiorna in tempo reale quando vengono inserite nuove sostituzioni.
+        </div>
+
+        <h3>3.3 Sezione Classi</h3>
+        <p>Tre funzionalità principali:</p>
+
+        <h4>A) Ricerca per Docente</h4>
+        <ol>
+            <li>Seleziona tab "Docente"</li>
+            <li>Digita il cognome del docente (apparirà l'autocomplete)</li>
+            <li>Opzionalmente filtra per giorno e ora</li>
+            <li>Clicca "Cerca Lezioni"</li>
+        </ol>
+
+        <h4>B) Docenti Disponibili</h4>
+        <ol>
+            <li>Seleziona tab "Disponibili"</li>
+            <li>Seleziona una data</li>
+            <li>Seleziona fascia oraria</li>
+            <li>Clicca "Cerca Disponibili"</li>
+            <li>Vedi lista docenti liberi, in disponibilità o sostituibili</li>
+        </ol>
+
+        <h4>C) Orario Classe</h4>
+        <ol>
+            <li>Seleziona tab "Orario Classe"</li>
+            <li>Scegli la classe dal menu</li>
+            <li>Visualizza la griglia settimanale completa</li>
+        </ol>
+
+        <h3>3.4 Installazione su Smartphone</h3>
+        <div class="step">
+            <span class="step-number">Android</span>
+            <ol>
+                <li>Apri l'app nel browser Chrome</li>
+                <li>Tocca il menu (3 puntini) in alto a destra</li>
+                <li>Seleziona "Aggiungi a schermata Home" o "Installa app"</li>
+                <li>Conferma l'installazione</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <span class="step-number">iOS</span>
+            <ol>
+                <li>Apri l'app in Safari</li>
+                <li>Tocca il pulsante di condivisione (quadrato con freccia)</li>
+                <li>Scorri e seleziona "Aggiungi a schermata Home"</li>
+                <li>Conferma</li>
+            </ol>
+        </div>
+
+        <h2 id="staff">4. Staff App - App Personale</h2>
+        <p>App completa per il personale scolastico con funzionalità di gestione.</p>
+
+        <h3>4.1 Funzionalità Aggiuntive</h3>
+        <p>L'app staff include tutte le funzionalità dell'app studenti più:</p>
+        <ul>
+            <li>Gestione sostituzioni docenti</li>
+            <li>Ricerca avanzata docenti disponibili</li>
+            <li>Gestione classi assenti</li>
+            <li>Pubblicazione rapida via WhatsApp/Telegram</li>
+        </ul>
+
+        <h3>4.2 Inserimento Sostituzioni</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Accedi alla sezione Sostituzioni</strong>
+            <p>Dal menu principale > Sostituzioni > Tab "Inserisci"</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Seleziona la data</strong>
+            <p>Scegli la data della sostituzione (default: oggi)</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Seleziona la classe</strong>
+            <p>Scegli la classe dal menu a tendina</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Clicca sulla lezione</strong>
+            <p>Nell'orario visualizzato, clicca sulla lezione da sostituire</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Scegli il docente sostituto</strong>
+            <p>Seleziona uno o più docenti disponibili dalla lista proposta:</p>
+            <ul>
+                <li><strong>Verde:</strong> Docente in disponibilità</li>
+                <li><strong>Arancione:</strong> Docente liberato da classe assente</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">6</span>
+            <strong>Salva</strong>
+            <p>Clicca "Salva Sostituzione". La sostituzione sarà immediatamente visibile nelle app.</p>
+        </div>
+
+        <h3>4.3 Gestione Classi Assenti</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Accedi alla gestione</strong>
+            <p>Menu principale > "Classi Assenti"</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Seleziona la data</strong>
+            <p>Scegli la data dell'evento (gita, assemblea, etc.)</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Seleziona le classi</strong>
+            <p>Spunta le classi che saranno assenti</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Salva</strong>
+            <p>Clicca "Salva Classi Assenti". Le classi non appariranno più nell'elenco per le sostituzioni di quel giorno.</p>
+        </div>
+
+        <h3>4.4 Pubblicazione Sostituzioni</h3>
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Tab Visualizza</strong>
+            <p>Vai su Sostituzioni > Tab "Visualizza"</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Seleziona data</strong>
+            <p>Filtra per la data che vuoi pubblicare</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Clicca Pubblica</strong>
+            <p>Clicca l'icona di condivisione nella card del giorno</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Condividi</strong>
+            <p>Scegli l'app (WhatsApp, Telegram, etc.) per condividere il messaggio formattato</p>
+        </div>
+
+        <h2 id="tips">5. Consigli e Best Practices</h2>
+
+        <h3>5.1 Aggiornamento Orario</h3>
+        <div class="note">
+            <ul>
+                <li>Aggiorna l'orario sempre tramite Converter App</li>
+                <li>Testa prima su un progetto Firebase di prova</li>
+                <li>Comunica agli utenti quando aggiorni l'orario</li>
+                <li>Mantieni una copia di backup dei file FET</li>
+            </ul>
+        </div>
+
+        <h3>5.2 Gestione Sostituzioni</h3>
+        <div class="note">
+            <ul>
+                <li>Inserisci le sostituzioni il prima possibile</li>
+                <li>Verifica sempre il docente sostituto prima di salvare</li>
+                <li>Elimina sostituzioni obsolete o annullate</li>
+                <li>Pubblica in gruppo WhatsApp/Telegram per notifica rapida</li>
+            </ul>
+        </div>
+
+        <h3>5.3 Sicurezza</h3>
+        <div class="warning">
+            <ul>
+                <li>Non condividere le credenziali Firebase</li>
+                <li>Limita l'accesso all'app Staff solo al personale autorizzato</li>
+                <li>Imposta regole corrette nel Firebase Database</li>
+                <li>Monitora l'uso del database dalla Firebase Console</li>
+            </ul>
+        </div>
+
+        <h2 id="troubleshooting">6. Risoluzione Problemi</h2>
+
+        <h3>6.1 L'app non mostra l'orario</h3>
+        <p><strong>Cause possibili:</strong></p>
+        <ul>
+            <li>Orario non ancora caricato su Firebase</li>
+            <li>Configurazione Firebase errata</li>
+            <li>Problemi di connessione internet</li>
+        </ul>
+        <p><strong>Soluzione:</strong></p>
+        <ol>
+            <li>Verifica di aver caricato l'orario con la Converter App</li>
+            <li>Controlla la Firebase Console: Database > Realtime Database</li>
+            <li>Ricarica la pagina (pull down su mobile)</li>
+        </ol>
+
+        <h3>6.2 Le sostituzioni non si aggiornano</h3>
+        <p><strong>Cause possibili:</strong></p>
+        <ul>
+            <li>Cache del browser</li>
+            <li>Service Worker non aggiornato</li>
+        </ul>
+        <p><strong>Soluzione:</strong></p>
+        <ol>
+            <li>Chiudi completamente l'app</li>
+            <li>Riapri e attendi alcuni secondi</li>
+            <li>Se persiste: Settings > App > Elimina dati > Reinstalla</li>
+        </ol>
+
+        <h3>6.3 Errore durante la conversione FET</h3>
+        <p><strong>Cause possibili:</strong></p>
+        <ul>
+            <li>File FET o XML corrotto</li>
+            <li>Versione FET incompatibile</li>
+            <li>Attività senza placement nella soluzione</li>
+        </ul>
+        <p><strong>Soluzione:</strong></p>
+        <ol>
+            <li>Apri la console del browser (F12)</li>
+            <li>Riprova la conversione e leggi i messaggi di debug</li>
+            <li>Verifica che tutte le attività abbiano un placement nella soluzione FET</li>
+            <li>Rigenera la soluzione XML da FET</li>
+        </ol>
+
+        <h3>6.4 Docenti non trovati nella ricerca</h3>
+        <p><strong>Causa:</strong> Nome docente non esattamente come in FET</p>
+        <p><strong>Soluzione:</strong> Digita solo il cognome, l'autocomplete ti aiuterà</p>
+
+        <h3>6.5 App non installabile su iPhone</h3>
+        <p><strong>Causa:</strong> Devi usare Safari, non Chrome</p>
+        <p><strong>Soluzione:</strong> Apri l'app in Safari e usa "Aggiungi a schermata Home"</p>
+
+        <hr style="margin: 40px 0;">
+        
+        <div class="info">
+            <strong>📞 Supporto:</strong> Per ulteriore assistenza, consulta il README.md del progetto o apri una issue su GitHub.
+        </div>
+
+        <p style="text-align: center; margin-top: 40px; color: #999;">
+            <strong>Apps Mobile FET</strong> - Versione 1.0<br>
+            © 2024 - Tutti i diritti riservati
+        </p>
+    </div>
+</body>
+</html>

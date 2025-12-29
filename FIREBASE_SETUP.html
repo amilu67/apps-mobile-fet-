@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida Setup Firebase - Apps Mobile FET</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #f57c00;
+            border-bottom: 3px solid #f57c00;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #f57c00;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 4px solid #f57c00;
+            padding-left: 15px;
+        }
+        h3 {
+            color: #ff9800;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        p { margin-bottom: 15px; }
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        li { margin-bottom: 10px; }
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .warning {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .step-number {
+            display: inline-block;
+            background: #f57c00;
+            color: white;
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        img {
+            max-width: 100%;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .firebase-logo {
+            color: #f57c00;
+            font-size: 2em;
+            margin-right: 10px;
+        }
+        @media print {
+            body { background: white; }
+            .container { box-shadow: none; }
+            code, pre { border: 1px solid #ddd; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><span class="firebase-logo">🔥</span> Guida Setup Firebase</h1>
+        <p><strong>Configurazione completa per il deploy delle Apps Mobile FET</strong></p>
+
+        <div class="info">
+            <strong>⏱️ Tempo stimato:</strong> 30-45 minuti<br>
+            <strong>💰 Costo:</strong> Gratuito (piano Spark di Firebase)
+        </div>
+
+        <h2>📋 Cosa ti serve</h2>
+        <ul>
+            <li>Account Google</li>
+            <li>Node.js installato (v14 o superiore) - <a href="https://nodejs.org/" target="_blank">Scarica qui</a></li>
+            <li>Terminal / Prompt dei comandi</li>
+            <li>Editor di testo (es: Visual Studio Code, Notepad++)</li>
+        </ul>
+
+        <h2>🚀 Parte 1: Creazione Progetto Firebase</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Accedi alla Firebase Console</strong>
+            <p>Vai su <a href="https://console.firebase.google.com/" target="_blank">https://console.firebase.google.com/</a></p>
+            <p>Accedi con il tuo account Google</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Crea un nuovo progetto</strong>
+            <ol>
+                <li>Clicca su "Aggiungi progetto" o "Create a project"</li>
+                <li>Inserisci un nome per il progetto (es: <code>apps-orario-scuola</code>)</li>
+                <li>Clicca "Continua"</li>
+                <li>Disabilita Google Analytics (opzionale, ma consigliato per iniziare)</li>
+                <li>Clicca "Crea progetto"</li>
+                <li>Attendi la creazione (1-2 minuti)</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Abilita Realtime Database</strong>
+            <ol>
+                <li>Dal menu laterale, vai su "Build" > "Realtime Database"</li>
+                <li>Clicca "Crea database"</li>
+                <li>Seleziona una location (es: <code>europe-west1</code> per Europa)</li>
+                <li>Seleziona "Avvia in modalità di test" (modificheremo le regole dopo)</li>
+                <li>Clicca "Abilita"</li>
+            </ol>
+        </div>
+
+        <div class="note">
+            <strong>📝 Annota l'URL del database!</strong><br>
+            Apparirà in alto, formato: <code>https://NOME-PROGETTO-default-rtdb.REGION.firebasedatabase.app</code><br>
+            Ti servirà per la configurazione.
+        </div>
+
+        <div class="step">
+            <span class="step-number">4</span>
+            <strong>Configura le regole del database</strong>
+            <p>Vai su tab "Regole" e sostituisci il contenuto con:</p>
+            <pre><code>{
+  "rules": {
+    "orario": {
+      ".read": true,
+      ".write": false
+    },
+    "sostituzioni": {
+      ".read": true,
+      ".write": true
+    },
+    "classi_assenti": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}</code></pre>
+            <p>Clicca "Pubblica"</p>
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Importante:</strong> Queste regole permettono a chiunque di leggere e scrivere sostituzioni/classi assenti. 
+            Per un ambiente di produzione, considera di aggiungere autenticazione Firebase.
+        </div>
+
+        <div class="step">
+            <span class="step-number">5</span>
+            <strong>Ottieni le credenziali dell'app web</strong>
+            <ol>
+                <li>Vai su Impostazioni progetto (icona ingranaggio in alto a sinistra)</li>
+                <li>Scorri fino a "Le tue app"</li>
+                <li>Clicca sull'icona web <code>&lt;/&gt;</code> per "Aggiungi app"</li>
+                <li>Inserisci un nickname (es: "Apps Orario FET")</li>
+                <li>Seleziona "Configura anche Firebase Hosting" ✓</li>
+                <li>Clicca "Registra app"</li>
+                <li>Copia i dati di configurazione che appaiono (ti serviranno dopo)</li>
+            </ol>
+        </div>
+
+        <div class="note">
+            <strong>📋 Salva queste informazioni:</strong><br>
+            - apiKey<br>
+            - authDomain<br>
+            - databaseURL<br>
+            - projectId<br>
+            - storageBucket<br>
+            - messagingSenderId<br>
+            - appId
+        </div>
+
+        <h2>🔧 Parte 2: Installazione Firebase CLI</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Installa Firebase CLI</strong>
+            <p>Apri il terminale/prompt dei comandi ed esegui:</p>
+            <pre><code>npm install -g firebase-tools</code></pre>
+            <p>Attendi il completamento dell'installazione.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Login a Firebase</strong>
+            <pre><code>firebase login</code></pre>
+            <p>Si aprirà il browser per autenticarti. Accedi con lo stesso account Google usato per Firebase.</p>
+        </div>
+
+        <div class="success">
+            <strong>✅ Firebase CLI installato!</strong> Ora puoi gestire i tuoi progetti Firebase dal terminale.
+        </div>
+
+        <h2>🏗️ Parte 3: Creazione Siti Hosting</h2>
+
+        <p>Firebase permette di hostare più siti nello stesso progetto. Creeremo 3 siti per le 3 app.</p>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Crea il sito per l'app studenti</strong>
+            <pre><code>firebase hosting:sites:create NOME-SITO-STUDENTI</code></pre>
+            <p>Esempio: <code>firebase hosting:sites:create orario-studenti</code></p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Crea il sito per l'app staff</strong>
+            <pre><code>firebase hosting:sites:create NOME-SITO-STAFF</code></pre>
+            <p>Esempio: <code>firebase hosting:sites:create orario-staff</code></p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Crea il sito per il converter</strong>
+            <pre><code>firebase hosting:sites:create NOME-SITO-CONVERTER</code></pre>
+            <p>Esempio: <code>firebase hosting:sites:create orario-converter</code></p>
+        </div>
+
+        <div class="info">
+            <strong>📝 Annota i nomi dei siti!</strong> Ti serviranno nella configurazione.
+        </div>
+
+        <h2>⚙️ Parte 4: Configurazione Apps</h2>
+
+        <p>Ora configureremo le 3 app con le credenziali Firebase.</p>
+
+        <h3>4.1 Configura Student App</h3>
+
+        <div class="step">
+            <strong>Crea firebase-config.js</strong>
+            <ol>
+                <li>Vai nella cartella <code>student-app/</code></li>
+                <li>Copia <code>firebase-config.js.template</code> in <code>firebase-config.js</code></li>
+                <li>Apri <code>firebase-config.js</code> con un editor</li>
+                <li>Sostituisci i placeholder con i dati del tuo progetto Firebase</li>
+            </ol>
+            <pre><code>const firebaseConfig = {
+    apiKey: "AIzaSy...", // Sostituisci con il tuo
+    authDomain: "tuo-progetto.firebaseapp.com",
+    databaseURL: "https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "tuo-progetto",
+    storageBucket: "tuo-progetto.firebasestorage.app",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abc123"
+};</code></pre>
+        </div>
+
+        <div class="step">
+            <strong>Crea .firebaserc</strong>
+            <ol>
+                <li>Copia <code>.firebaserc.template</code> in <code>.firebaserc</code></li>
+                <li>Apri <code>.firebaserc</code> con un editor</li>
+                <li>Sostituisci i placeholder</li>
+            </ol>
+            <pre><code>{
+  "projects": {
+    "default": "tuo-progetto-id"
+  },
+  "targets": {
+    "tuo-progetto-id": {
+      "hosting": {
+        "student": [
+          "nome-sito-studenti"
+        ]
+      }
+    }
+  }
+}</code></pre>
+        </div>
+
+        <h3>4.2 Configura Staff App</h3>
+        <p>Ripeti gli stessi passi nella cartella <code>staff-app/</code>:</p>
+        <ul>
+            <li>Crea <code>firebase-config.js</code> (stesse credenziali Firebase)</li>
+            <li>Crea <code>.firebaserc</code> (usando il nome sito staff)</li>
+        </ul>
+
+        <h3>4.3 Configura Converter App</h3>
+        <p>Ripeti gli stessi passi nella cartella <code>converter-app/</code>:</p>
+        <ul>
+            <li>Crea <code>firebase-config.js</code> (stesse credenziali Firebase)</li>
+            <li>Crea <code>.firebaserc</code> (usando il nome sito converter)</li>
+        </ul>
+
+        <div class="warning">
+            <strong>⚠️ Importante:</strong>
+            <ul>
+                <li>NON committare <code>firebase-config.js</code> e <code>.firebaserc</code> su GitHub!</li>
+                <li>Sono inclusi nel <code>.gitignore</code></li>
+                <li>Condividi solo i file <code>.template</code></li>
+            </ul>
+        </div>
+
+        <h2>🚢 Parte 5: Deploy delle App</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Deploy Student App</strong>
+            <pre><code>cd student-app
+firebase deploy --only hosting</code></pre>
+            <p>Attendi il completamento. Al termine vedrai l'URL dell'app.</p>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Deploy Staff App</strong>
+            <pre><code>cd ../staff-app
+firebase deploy --only hosting</code></pre>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Deploy Converter App</strong>
+            <pre><code>cd ../converter-app
+firebase deploy --only hosting</code></pre>
+        </div>
+
+        <div class="success">
+            <strong>🎉 Congratulazioni!</strong> Le tue app sono online!<br>
+            Gli URL saranno nel formato:<br>
+            - <code>https://nome-sito-studenti.web.app</code><br>
+            - <code>https://nome-sito-staff.web.app</code><br>
+            - <code>https://nome-sito-converter.web.app</code>
+        </div>
+
+        <h2>📊 Parte 6: Primo Utilizzo</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Carica l'orario</strong>
+            <ol>
+                <li>Apri la Converter App nel browser</li>
+                <li>Carica i file FET (file .fet e soluzione XML)</li>
+                <li>Compila i campi (istituzione, anno, materie disponibilità)</li>
+                <li>Clicca "Converti e Carica su Firebase"</li>
+                <li>Attendi il completamento</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Verifica il caricamento</strong>
+            <ol>
+                <li>Vai su Firebase Console > Realtime Database</li>
+                <li>Dovresti vedere il nodo <code>orario</code> con tutti i dati</li>
+            </ol>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Testa le app</strong>
+            <ol>
+                <li>Apri la Student App</li>
+                <li>Dovresti vedere l'intestazione con nome istituto e anno</li>
+                <li>Prova a cercare una classe o un docente</li>
+            </ol>
+        </div>
+
+        <h2>🔒 Parte 7: Sicurezza Avanzata (Opzionale)</h2>
+
+        <div class="info">
+            <strong>Consigliato per ambiente di produzione</strong>
+        </div>
+
+        <h3>7.1 Aggiungi Autenticazione</h3>
+        <ol>
+            <li>Firebase Console > Authentication > Get started</li>
+            <li>Abilita "Email/Password" provider</li>
+            <li>Crea utenti per il personale staff</li>
+            <li>Modifica le app per richiedere login prima delle operazioni di scrittura</li>
+        </ol>
+
+        <h3>7.2 Migliora le regole del database</h3>
+        <pre><code>{
+  "rules": {
+    "orario": {
+      ".read": true,
+      ".write": "auth != null" // Solo utenti autenticati
+    },
+    "sostituzioni": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "classi_assenti": {
+      ".read": true,
+      ".write": "auth != null"
+    }
+  }
+}</code></pre>
+
+        <h3>7.3 Dominio Personalizzato (Opzionale)</h3>
+        <ol>
+            <li>Firebase Console > Hosting</li>
+            <li>Per ogni sito, clicca "Aggiungi dominio personalizzato"</li>
+            <li>Segui la procedura guidata per collegare il tuo dominio</li>
+        </ol>
+
+        <h2>💡 Tips e Troubleshooting</h2>
+
+        <h3>Errore "Permission Denied"</h3>
+        <p><strong>Causa:</strong> Regole database troppo restrittive</p>
+        <p><strong>Soluzione:</strong> Verifica le regole in Firebase Console > Realtime Database > Regole</p>
+
+        <h3>App non si aggiorna dopo deploy</h3>
+        <p><strong>Causa:</strong> Cache del browser</p>
+        <p><strong>Soluzione:</strong> Fai un hard refresh (Ctrl+Shift+R su PC, Cmd+Shift+R su Mac)</p>
+
+        <h3>Errore durante firebase login</h3>
+        <p><strong>Causa:</strong> Problemi di rete o firewall</p>
+        <p><strong>Soluzione:</strong> Usa <code>firebase login --no-localhost</code></p>
+
+        <h3>Database vuoto dopo conversione</h3>
+        <p><strong>Causa:</strong> File FET o XML non validi</p>
+        <p><strong>Soluzione:</strong> Controlla la console browser (F12) per errori dettagliati</p>
+
+        <h2>📚 Risorse Utili</h2>
+        <ul>
+            <li><a href="https://firebase.google.com/docs" target="_blank">Documentazione ufficiale Firebase</a></li>
+            <li><a href="https://firebase.google.com/docs/cli" target="_blank">Firebase CLI Reference</a></li>
+            <li><a href="https://firebase.google.com/docs/database/security" target="_blank">Database Security Rules</a></li>
+            <li><a href="https://firebase.google.com/pricing" target="_blank">Firebase Pricing (piano gratuito)</a></li>
+        </ul>
+
+        <h2>🆘 Supporto</h2>
+        <p>Se incontri problemi:</p>
+        <ol>
+            <li>Consulta questo documento e il MANUALE.html</li>
+            <li>Controlla la Firebase Console per errori</li>
+            <li>Apri la console browser (F12) per debug</li>
+            <li>Apri una issue su GitHub con screenshot e dettagli</li>
+        </ol>
+
+        <hr style="margin: 40px 0;">
+        
+        <p style="text-align: center; margin-top: 40px; color: #999;">
+            <strong>Apps Mobile FET</strong> - Guida Setup Firebase<br>
+            Versione 1.0 - © 2024
+        </p>
+    </div>
+</body>
+</html>
