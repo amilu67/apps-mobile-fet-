@@ -750,7 +750,12 @@
     <script>
         // Load and update header
         function loadHeader() {
-            database.ref('orario').once('value')
+            if (typeof firebase === 'undefined' || !firebase.database) {
+                console.error('Firebase non disponibile');
+                return;
+            }
+            
+            firebase.database().ref('orario').once('value')
                 .then(snapshot => {
                     const data = snapshot.val();
                     if (data) {
@@ -760,13 +765,16 @@
                         if (data.istituto) {
                             titleEl.textContent = `Orario FET Mobile`;
                         }
-                        if (data.anno_scolastico) {
-                            subtitleEl.textContent = `${data.istituto || ''} - ${data.anno_scolastico}`;
+                        if (data.istituto && data.anno_scolastico) {
+                            subtitleEl.textContent = `${data.istituto} - ${data.anno_scolastico}`;
+                        } else if (data.istituto) {
+                            subtitleEl.textContent = data.istituto;
                         }
                     }
                 })
                 .catch(error => {
                     console.error('Errore caricamento header:', error);
+                    document.getElementById('main-subtitle').textContent = 'Errore caricamento';
                 });
         }
 
